@@ -1,22 +1,25 @@
 package PsychologyTest;
 
-import org.w3c.dom.ls.LSOutput;
 
-import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 
 
 public class Controller implements ActionListener{
     private View view;
     private Model model;
+    private ArrayList<File> filesList;
 
     public Controller(Model model) {
         this.model = model;
         view = new View(this);
         view.setVisible(true);
+        filesList = new ArrayList();
     }
 
     @Override
@@ -34,38 +37,23 @@ public class Controller implements ActionListener{
         if (e.getSource() == view.addFiles){
             int interval = view.fc.showDialog(view,"Add Files");
             if(interval == view.fc.APPROVE_OPTION){
-                System.out.println("You chose to open this file: " +
-                        view.fc.getSelectedFile().getName());
+               File[] files = view.fc.getSelectedFiles();
+               view.filePanel.setImg(files[0].getAbsolutePath());
+               view.filePanel.repaint();
+               for(File f : files){
+                   filesList.add(f);
+               }
             }
         }
 
-//        hover(view.back);
-//        hover(view.showList);
-//        hover(btns);
+        if (e.getSource() == view.save) {
+            model.copyFile(filesList);
+        }
+
+        if(e.getSource() == view.pre){
+//            view.identity.setText("ddd");
+        }
     }
 
 
-
-
-//        boolean isPress = false;
-//        System.out.println(false);
-//        ButtonModel model = (ButtonModel) e.getSource();
-//        if (!isPress) {
-//            if (model.isPressed()) {
-//                System.out.println(1);
-//                isPress = true;
-//                btn.setBackground(Color.white);
-//            }else if (model.isRollover()) {
-//                btn.setBackground(Color.white);
-//            }else {
-//                btn.setBackground(view.blue);
-//            }
-//        }
-//    }
-//    @Override
-//    public void stateChanged(ChangeEvent e) {
-////        hover(view.back,e);
-////        hover(view.showList,e);
-//        hover(view.add,e);
-//    }
 }

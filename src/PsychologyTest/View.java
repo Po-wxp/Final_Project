@@ -7,13 +7,15 @@ import java.awt.event.MouseEvent;
 
 public class View extends JFrame {
     private Controller controller;
-    protected JButton psy, client, add, showList, back, addFiles;
+    protected JButton psy, client, add, showList, back, addFiles, save, pre, next;
+//    protected switchButton pre, next;
     protected JFileChooser fc;
     protected JLabel identity;
     protected JPanel index;
     protected Color blue;
     protected JPanel psyPanel;
-    protected JPanel addTest;
+    protected JPanel addTestPanel;
+    protected FilePanel filePanel;
 
     public View(Controller controller) {
         this.controller = controller;
@@ -81,7 +83,7 @@ public class View extends JFrame {
         back.setActionCommand("unpressed");
 
         buttonDefault(back,f2,blue);
-        buttonDefault(add,f2,blue);
+        buttonDefault(add,f2,Color.white);
         buttonDefault(showList,f2,blue);
 
         //Left top -- label
@@ -118,14 +120,14 @@ public class View extends JFrame {
     }
 
     public JPanel addTestPanel() {
-        addTest = new JPanel(null);
-        addTest.setBackground(Color.white);
+        addTestPanel = new JPanel(null);
+        addTestPanel.setBackground(Color.white);
 
         //Add button
         addFiles = new JButton("Add Files");
         buttonDefault(addFiles,null,new Color(41, 189, 226));
         addFiles.setBounds(30,30,100,30);
-        addTest.add(addFiles);
+        addTestPanel.add(addFiles);
 
         //File chooser
         fc = new JFileChooser();
@@ -133,13 +135,33 @@ public class View extends JFrame {
         FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG & PNG &MP4","jpg", "png", "mp4");
         fc.setFileFilter(filter);
 
-        //Img Panel
-        JPanel imgPanel = new JPanel();
-        imgPanel.setBounds(100,100,400,220);
-        imgPanel.setBackground(Color.red);
-        addTest.add(imgPanel);
+        // Save Button
+        save = new JButton("Save");
+        buttonDefault(save, null, new Color(41, 189, 226));
+        save.setBounds(480,500,80,30);
+        addTestPanel.add(save);
 
-        return addTest;
+        //File Panel
+        filePanel = new FilePanel();
+        filePanel.setBorder(BorderFactory.createLineBorder(Color.black));
+        filePanel.setBackground(Color.white);
+        filePanel.setBounds(100,100,400,220);
+        addTestPanel.add(filePanel);
+
+        //Pre, next buttons
+        pre = new JButton("<");
+        next = new JButton(">");
+        buttonDefault(pre,new Font("TimesRoman",Font.PLAIN,18),null);
+        buttonDefault(next,new Font("TimesRoman",Font.PLAIN,18),null);
+        pre.setContentAreaFilled(false);
+        next.setContentAreaFilled(false);
+        pre.setBounds(400,320,50,50);
+        next.setBounds(460,320,50,50);
+        addTestPanel.add(pre);
+        addTestPanel.add(next);
+
+
+        return addTestPanel;
     }
 
     public void buttonDefault(JButton btn, Font f, Color color){
@@ -179,3 +201,39 @@ public class View extends JFrame {
         }
     }
 }
+
+class FilePanel extends JPanel{
+
+        ImageIcon icon;
+        Image img;
+
+        public FilePanel() {
+            this.setLayout(null);
+        }
+
+        public void setImg(String filePath) {
+            icon=new ImageIcon(filePath);
+            img=icon.getImage();
+
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            g.drawImage(img,0, 0,400,220,this);
+        }
+}
+
+//class switchButton extends JButton{
+//
+//    public switchButton(String s) {
+//        this.setText(s);
+//    }
+//
+//    @Override
+//    protected void paintBorder(Graphics g) {
+//        g.setColor(getForeground());
+//        g.drawOval(0, 0, getSize().width-1,
+//                getSize().height-1);
+//    }
+//}
