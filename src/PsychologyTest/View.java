@@ -11,15 +11,16 @@ import java.awt.event.MouseEvent;
 
 public class View extends JFrame {
     private Controller controller;
-    protected JButton psy, client, add, showList, back, addFiles, save, pre, next;
-//    protected switchButton pre, next;
+    protected JButton psy, client, add, showList, back, addFiles, save, pre, next, nextTest;
+    protected JTextArea question;
     protected JFileChooser fc;
-    protected JLabel identity;
+    protected JLabel identity, showURL, uploadNum;
     protected JPanel index;
     protected Color blue;
     protected JPanel psyPanel;
     protected JPanel addTestPanel;
-    protected FilePanel filePanel;
+    protected imgPanel imgPanel;
+    protected MediaPlayer mp;
 
     public View(Controller controller) {
         this.controller = controller;
@@ -136,7 +137,7 @@ public class View extends JFrame {
         //File chooser
         fc = new JFileChooser();
         fc.setMultiSelectionEnabled(true);
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG & PNG &MP4","jpg", "png", "mp4");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG & PNG & MP4 & MP3","jpg", "png", "mp4", "mp3");
         fc.setFileFilter(filter);
 
         // Save Button
@@ -145,74 +146,56 @@ public class View extends JFrame {
         save.setBounds(480,500,80,30);
         addTestPanel.add(save);
 
-        //File Panel
-        filePanel = new FilePanel();
-        filePanel.setBorder(BorderFactory.createLineBorder(Color.black));
-        filePanel.setBackground(Color.white);
-        filePanel.setBounds(100,100,400,220);
-//        addTestPanel.add(filePanel);
+        //Next Test Button
+        nextTest = new JButton("Next");
+        buttonDefault(nextTest, null, new Color(41, 189, 226));
+        nextTest.setBounds(350,500,80,30);
+        addTestPanel.add(nextTest);
 
+        //Img Panel
+        imgPanel = new imgPanel();
+        imgPanel.setVisible(false);
+        imgPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+        imgPanel.setBackground(Color.white);
+        imgPanel.setBounds(100,100,400,220);
+        addTestPanel.add(imgPanel);
 
         // Media Panel
         NativeLibrary.addSearchPath(RuntimeUtil.getLibVlcLibraryName(), "d:/VideoLAN/VLC");
-        MediaPlayer mp = new MediaPlayer();
-        mp.setVisible(true);
+        mp = new MediaPlayer();
+        mp.setVisible(false);
         mp.setBounds(100,100,400,220);
         addTestPanel.add(mp);
 
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    mp.getMediaPlayer().playMedia("static/music.mp3");
-                    new SwingWorker<String, Integer>() {
-                        //调节视频音量
-                        protected String doInBackground() throws Exception {
-                            while (true) {
-                                //获得当前视频总时间长度
-                                long total = mp.getMediaPlayer().getLength();
-                                //获得当期播放时间
-                                long curr = mp.getMediaPlayer().getTime();
-                                //获取播放视频的百分比
-                                float percent = ((float)curr/total);
-                                publish((int)(percent*100));
-                                Thread.sleep(100);
-                            }
-                        }
-                        protected void process(java.util.List<Integer> chunks) {
-                            for (int v:chunks) {
-                                mp.getProgressBar().setValue(v);
-                            }
-                        };
-                    }.execute();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        // Show URL
+        showURL = new JLabel("");
+        showURL.setBounds(110,80,400,20);
+        addTestPanel.add(showURL);
 
-//        Canvas canvas = new Canvas();
-//        MediaPlayerFactory mediaPlayerFactory = new MediaPlayerFactory();
-//        CanvasVideoSurface videoSurface = mediaPlayerFactory.newVideoSurface(canvas);
-//        EmbeddedMediaPlayer mediaPlayer = mediaPlayerFactory.newEmbeddedMediaPlayer();
-//        mediaPlayer.setVideoSurface(videoSurface);
-//
-//        mediaPlayer.playMedia("static/mi.mp4");
-//        addTestPanel.add(canvas);
-
-
+        // Upload numbers
+        uploadNum = new JLabel("");
+        uploadNum.setBounds(110,320,200,20);
+        addTestPanel.add(uploadNum);
 
         //Pre, next buttons
         pre = new JButton("<");
         next = new JButton(">");
+        pre.setVisible(false);
+        next.setVisible(false);
         buttonDefault(pre,new Font("TimesRoman",Font.PLAIN,18),null);
         buttonDefault(next,new Font("TimesRoman",Font.PLAIN,18),null);
         pre.setContentAreaFilled(false);
         next.setContentAreaFilled(false);
-        pre.setBounds(400,320,50,50);
-        next.setBounds(460,320,50,50);
+        pre.setBounds(400,305,50,50);
+        next.setBounds(460,305,50,50);
         addTestPanel.add(pre);
         addTestPanel.add(next);
 
+        //Text area
+        question = new JTextArea("");
+        question.setBounds(70,350,500,100);
+        question.setBorder(BorderFactory.createLineBorder(Color.black));
+        addTestPanel.add(question);
 
         return addTestPanel;
     }
@@ -255,12 +238,12 @@ public class View extends JFrame {
     }
 }
 
-class FilePanel extends JPanel{
+class imgPanel extends JPanel{
 
         ImageIcon icon;
         Image img;
 
-        public FilePanel() {
+        public imgPanel() {
             this.setLayout(null);
         }
 

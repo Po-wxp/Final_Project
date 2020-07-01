@@ -1,5 +1,7 @@
 package PsychologyTest;
 
+import MediaPlayer.MediaPlayer;
+
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
@@ -25,5 +27,10 @@ public class Model {
                 event.printStackTrace();
             }
         }
+    }
+
+    public String getFileType(File file){
+        String fileName = file.getName();
+        return fileName.substring(fileName.lastIndexOf(".",fileName.length())).substring(1);
     }
 }

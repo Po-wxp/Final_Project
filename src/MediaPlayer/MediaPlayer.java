@@ -5,10 +5,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JSlider;
+import java.io.File;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -19,7 +17,7 @@ public class MediaPlayer extends JPanel {
 
     private JPanel contentPane;
     //创建播放器界面组件
-    EmbeddedMediaPlayerComponent playerComponent = new EmbeddedMediaPlayerComponent();
+    EmbeddedMediaPlayerComponent playerComponent;
     private final JPanel panel = new JPanel();
     private JProgressBar progress;
 
@@ -95,6 +93,9 @@ public class MediaPlayer extends JPanel {
             }
         });
         this.add(contentPane);
+
+
+
     }
     // Return the player
     public EmbeddedMediaPlayer getMediaPlayer() {
@@ -113,4 +114,34 @@ public class MediaPlayer extends JPanel {
         playerComponent.getMediaPlayer().setVolume(v);
     }
 
+    public void setFile(File file){
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    playerComponent.getMediaPlayer().prepareMedia(file.getAbsolutePath());
+//                    Thread.sleep(200);
+//                    playerComponent.getMediaPlayer().pause();
+                    new SwingWorker<String, Integer>() {
+                        // Adjust the volume
+                        protected String doInBackground() throws Exception {
+                            while (true) {
+                                long total = playerComponent.getMediaPlayer().getLength();
+                                long curr = playerComponent.getMediaPlayer().getTime();
+                                float percent = ((float)curr/total);
+                                publish((int)(percent*100));
+                                Thread.sleep(100);
+                            }
+                        }
+                        protected void process(java.util.List<Integer> chunks) {
+                            for (int v:chunks) {
+                                progress.setValue(v);
+                            }
+                        };
+                    }.execute();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
 }
