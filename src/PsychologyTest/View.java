@@ -1,5 +1,9 @@
 package PsychologyTest;
 
+import MediaPlayer.MediaPlayer;
+import com.sun.jna.NativeLibrary;
+import uk.co.caprica.vlcj.runtime.RuntimeUtil;
+
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
@@ -146,7 +150,56 @@ public class View extends JFrame {
         filePanel.setBorder(BorderFactory.createLineBorder(Color.black));
         filePanel.setBackground(Color.white);
         filePanel.setBounds(100,100,400,220);
-        addTestPanel.add(filePanel);
+//        addTestPanel.add(filePanel);
+
+
+        // Media Panel
+        NativeLibrary.addSearchPath(RuntimeUtil.getLibVlcLibraryName(), "d:/VideoLAN/VLC");
+        MediaPlayer mp = new MediaPlayer();
+        mp.setVisible(true);
+        mp.setBounds(100,100,400,220);
+        addTestPanel.add(mp);
+
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    mp.getMediaPlayer().playMedia("static/music.mp3");
+                    new SwingWorker<String, Integer>() {
+                        //调节视频音量
+                        protected String doInBackground() throws Exception {
+                            while (true) {
+                                //获得当前视频总时间长度
+                                long total = mp.getMediaPlayer().getLength();
+                                //获得当期播放时间
+                                long curr = mp.getMediaPlayer().getTime();
+                                //获取播放视频的百分比
+                                float percent = ((float)curr/total);
+                                publish((int)(percent*100));
+                                Thread.sleep(100);
+                            }
+                        }
+                        protected void process(java.util.List<Integer> chunks) {
+                            for (int v:chunks) {
+                                mp.getProgressBar().setValue(v);
+                            }
+                        };
+                    }.execute();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+//        Canvas canvas = new Canvas();
+//        MediaPlayerFactory mediaPlayerFactory = new MediaPlayerFactory();
+//        CanvasVideoSurface videoSurface = mediaPlayerFactory.newVideoSurface(canvas);
+//        EmbeddedMediaPlayer mediaPlayer = mediaPlayerFactory.newEmbeddedMediaPlayer();
+//        mediaPlayer.setVideoSurface(videoSurface);
+//
+//        mediaPlayer.playMedia("static/mi.mp4");
+//        addTestPanel.add(canvas);
+
+
 
         //Pre, next buttons
         pre = new JButton("<");
@@ -214,7 +267,6 @@ class FilePanel extends JPanel{
         public void setImg(String filePath) {
             icon=new ImageIcon(filePath);
             img=icon.getImage();
-
         }
 
         @Override
@@ -224,16 +276,3 @@ class FilePanel extends JPanel{
         }
 }
 
-//class switchButton extends JButton{
-//
-//    public switchButton(String s) {
-//        this.setText(s);
-//    }
-//
-//    @Override
-//    protected void paintBorder(Graphics g) {
-//        g.setColor(getForeground());
-//        g.drawOval(0, 0, getSize().width-1,
-//                getSize().height-1);
-//    }
-//}
