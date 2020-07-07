@@ -11,7 +11,7 @@ import java.awt.event.MouseEvent;
 
 public class View extends JFrame {
     private Controller controller;
-    protected JButton psy, client, add, showList, back, addFiles, save, pre, next, nextTest;
+    protected JButton psy, client, add, showList, back, addFiles, save, pre, next, nextTest, addQuestion, removeQuestion;
     protected JTextArea question;
     protected JFileChooser fc;
     protected JLabel identity, showURL, uploadNum;
@@ -31,6 +31,7 @@ public class View extends JFrame {
 
         // Center
         this.setLocationRelativeTo(null);
+        this.setResizable(false);
         // set logo
         ImageIcon logo = new ImageIcon("static/logo.png");
         setIconImage(logo.getImage());
@@ -193,9 +194,25 @@ public class View extends JFrame {
 
         //Text area
         question = new JTextArea("");
+        question.setEditable(false);
         question.setBounds(70,350,500,100);
         question.setBorder(BorderFactory.createLineBorder(Color.black));
         addTestPanel.add(question);
+
+        //Add question
+        ImageIcon addQIcon = new ImageIcon("static/add.png");
+        addQuestion = new JButton(addQIcon);
+        buttonDefault(addQuestion, null, Color.white);
+        addQuestion.setBounds(70,460,40,40);
+        addTestPanel.add(addQuestion);
+
+        //Remove question
+        ImageIcon removeIcon = new ImageIcon("static/remove.png");
+        removeQuestion = new JButton(removeIcon);
+        removeQuestion.setVisible(false);
+        buttonDefault(removeQuestion, null, Color.white);
+        removeQuestion.setBounds(140,460,40,40);
+        addTestPanel.add(removeQuestion);
 
         return addTestPanel;
     }

@@ -16,7 +16,7 @@ import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 public class MediaPlayer extends JPanel {
 
     private JPanel contentPane;
-    //创建播放器界面组件
+    //Create Panel
     EmbeddedMediaPlayerComponent playerComponent;
     private final JPanel panel = new JPanel();
     private JProgressBar progress;
@@ -63,7 +63,6 @@ public class MediaPlayer extends JPanel {
                 volume(slider.getValue());
             }
         });
-        //视频播放进度条
         progress = new JProgressBar();
         progress.addMouseListener(new MouseAdapter() {
             @Override
@@ -93,8 +92,6 @@ public class MediaPlayer extends JPanel {
             }
         });
         this.add(contentPane);
-
-
 
     }
     // Return the player
