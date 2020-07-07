@@ -52,7 +52,8 @@ public class Controller implements ActionListener{
         }
 
         if (e.getSource() == view.save) {
-            model.copyFile(filesList);
+
+//            model.copyFile(filesList);
             initialize();
             testPageList = new ArrayList();
         }
