@@ -1,7 +1,7 @@
 package PsychologyTest;
 
 
-import MediaPlayer.MediaPlayer;
+import database.DatabaseAgent;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -17,6 +17,7 @@ public class Controller implements ActionListener{
     private ArrayList<String> questionList;
     private int index = 0;
     private ArrayList<TestPage> testPageList;
+    private int pageNum;
 
     public Controller(Model model) {
         this.model = model;
@@ -25,6 +26,7 @@ public class Controller implements ActionListener{
         filesList = new ArrayList();
         questionList = new ArrayList();
         testPageList = new ArrayList();
+        pageNum = 1;
     }
 
     @Override
@@ -51,13 +53,6 @@ public class Controller implements ActionListener{
             }
         }
 
-        if (e.getSource() == view.save) {
-
-//            model.copyFile(filesList);
-            initialize();
-            testPageList = new ArrayList();
-        }
-
         if(e.getSource() == view.pre){
             index--;
             showPanel();
@@ -72,8 +67,8 @@ public class Controller implements ActionListener{
         }
 
         if(e.getSource() == view.back){
+            nextPageInitialize();
             initialize();
-            testPageList = new ArrayList();
         }
 
         if(index == 0 ){
@@ -111,12 +106,42 @@ public class Controller implements ActionListener{
         }
 
         if(e.getSource() == view.nextTest){
+            if(view.question.getText().equals("")){
+                JOptionPane.showMessageDialog(null, "Please input at least one question", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            pageNum ++;
             storeTestPage();
-            initialize();
+            nextPageInitialize();
             view.addTestPanel.revalidate();
             view.addTestPanel.repaint();
         }
 
+        if (e.getSource() == view.save) {
+            ArrayList<File> newFiles = model.copyFile(testPageList);
+            saveData(newFiles);
+            nextPageInitialize();
+            initialize();
+        }
+    }
+
+    public void saveData(ArrayList<File> newFiles) {
+        ArrayList<String> questions = new ArrayList();
+        ArrayList<String> urls = new ArrayList();
+        for(TestPage page : testPageList){
+            for(String question : page.getQuestions()){
+                questions.add(question);
+            }
+        }
+
+        for(File f : newFiles) {
+            urls.add(f.getAbsolutePath());
+        }
+
+        DatabaseAgent database = new DatabaseAgent();
+        int TID = database.getMaxTID();
+        database.upload(TID, pageNum, urls, questions);
+        database.close();
     }
 
     public void showPanel(){
@@ -155,7 +180,7 @@ public class Controller implements ActionListener{
 //        System.out.println(page.getQuestions());
     }
 
-    public void initialize(){
+    public void nextPageInitialize(){
         index = 0;
         filesList = new ArrayList<>();
         questionList = new ArrayList<>();
@@ -164,9 +189,13 @@ public class Controller implements ActionListener{
         view.question.setText("");
         view.imgPanel.setVisible(false);
         view.mp.setVisible(false);
+        view.next.setVisible(false);
+        view.pre.setVisible(false);
     }
 
-
-
+    public void initialize() {
+        pageNum = 1;
+        testPageList = new ArrayList();
+    }
 
 }

@@ -17,16 +17,34 @@ public class Model {
         jf.repaint();
     }
     // Copy upload files to the server
-    public void copyFile(ArrayList<File> filesList){
-        for(File f : filesList){
-            File newFile = new File("upload/",f.getName());
-//                f.renameTo(newFile);
-            try {
-                Files.copy(f.toPath(),newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException event) {
-                event.printStackTrace();
+//    public ArrayList<File>  copyFile(ArrayList<File> filesList){
+//        ArrayList<File> newFiles = new ArrayList();
+//        for(File f : filesList){
+//            File newFile = new File("upload/",f.getName());
+//            try {
+//                Files.copy(f.toPath(),newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+//                newFiles.add(newFile);
+//            } catch (IOException event) {
+//                event.printStackTrace();
+//            }
+//        }
+//        return newFiles;
+//    }
+
+    public ArrayList<File>  copyFile(ArrayList<TestPage> testPages){
+        ArrayList<File> newFiles = new ArrayList();
+        for (TestPage testPage : testPages){
+            for(File f : testPage.getFiles()){
+                File newFile = new File("upload/",f.getName());
+                try {
+                    Files.copy(f.toPath(),newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    newFiles.add(newFile);
+                } catch (IOException event) {
+                    event.printStackTrace();
+                }
             }
         }
+        return newFiles;
     }
 
     public String getFileType(File file){
