@@ -18,6 +18,7 @@ public class Controller implements ActionListener{
     private int index = 0;
     private ArrayList<TestPage> testPageList;
     private int pageNum;
+    private boolean show_isSelected, add_isSelected;
 
     public Controller(Model model) {
         this.model = model;
@@ -27,6 +28,8 @@ public class Controller implements ActionListener{
         questionList = new ArrayList();
         testPageList = new ArrayList();
         pageNum = 1;
+        show_isSelected = false;
+        add_isSelected = true;
     }
 
     @Override
@@ -42,6 +45,7 @@ public class Controller implements ActionListener{
         }
 
         if (e.getSource() == view.addFiles){
+            view.emptyPanel.setVisible(false);
             int interval = view.fc.showDialog(view,"Add Files");
             if(interval == view.fc.APPROVE_OPTION){
                File[] files = view.fc.getSelectedFiles();
@@ -69,6 +73,8 @@ public class Controller implements ActionListener{
         if(e.getSource() == view.back){
             nextPageInitialize();
             initialize();
+            show_isSelected = false;
+            add_isSelected = true;
         }
 
         if(index == 0 ){
@@ -123,6 +129,24 @@ public class Controller implements ActionListener{
             nextPageInitialize();
             initialize();
         }
+
+        if (e.getSource() == view.showList) {
+            if(!show_isSelected){
+                add_isSelected = false;
+                show_isSelected = true;
+                model.changePanel(view.psyPanel, view.addTestPanel, view.showTestsPanel());
+                nextPageInitialize();
+                initialize();
+            }
+        }
+
+        if (e.getSource() == view.add) {
+            if(!add_isSelected){
+                add_isSelected = true;
+                show_isSelected = false;
+                model.changePanel(view.psyPanel, view.showTestsPanel, view.addTestPanel);
+            }
+        }
     }
 
     public void saveData(ArrayList<File> newFiles) {
@@ -139,7 +163,7 @@ public class Controller implements ActionListener{
         }
 
         DatabaseAgent database = new DatabaseAgent();
-        int TID = database.getMaxTID();
+        int TID = database.getMaxTID() + 1;
         database.upload(TID, pageNum, urls, questions);
         database.close();
     }
@@ -191,6 +215,7 @@ public class Controller implements ActionListener{
         view.mp.setVisible(false);
         view.next.setVisible(false);
         view.pre.setVisible(false);
+        view.emptyPanel.setVisible(true);
     }
 
     public void initialize() {

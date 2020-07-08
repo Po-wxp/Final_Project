@@ -16,21 +16,15 @@ public class Model {
         jf.revalidate();
         jf.repaint();
     }
-    // Copy upload files to the server
-//    public ArrayList<File>  copyFile(ArrayList<File> filesList){
-//        ArrayList<File> newFiles = new ArrayList();
-//        for(File f : filesList){
-//            File newFile = new File("upload/",f.getName());
-//            try {
-//                Files.copy(f.toPath(),newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-//                newFiles.add(newFile);
-//            } catch (IOException event) {
-//                event.printStackTrace();
-//            }
-//        }
-//        return newFiles;
-//    }
 
+    public void changePanel(JPanel jf, JPanel cur, JPanel next){
+        jf.remove(cur);
+        jf.add(next);
+        jf.revalidate();
+        jf.repaint();
+    }
+
+    // Copy upload files to the server
     public ArrayList<File>  copyFile(ArrayList<TestPage> testPages){
         ArrayList<File> newFiles = new ArrayList();
         for (TestPage testPage : testPages){

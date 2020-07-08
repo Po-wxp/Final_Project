@@ -2,12 +2,16 @@ package PsychologyTest;
 
 import MediaPlayer.MediaPlayer;
 import com.sun.jna.NativeLibrary;
+import database.DatabaseAgent;
 import uk.co.caprica.vlcj.runtime.RuntimeUtil;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 
 public class View extends JFrame {
     private Controller controller;
@@ -17,8 +21,7 @@ public class View extends JFrame {
     protected JLabel identity, showURL, uploadNum;
     protected JPanel index;
     protected Color blue;
-    protected JPanel psyPanel;
-    protected JPanel addTestPanel;
+    protected JPanel psyPanel, addTestPanel, showTestsPanel, emptyPanel;
     protected imgPanel imgPanel;
     protected MediaPlayer mp;
 
@@ -62,7 +65,6 @@ public class View extends JFrame {
         JPanel leftTop = new JPanel(new BorderLayout());
         JPanel leftMid = new JPanel(new GridLayout(2,1,0,20));
         JPanel leftBot = new JPanel(new BorderLayout());
-//        JPanel right = new JPanel();
 
         Font f1 = new Font("TimesRoman",Font.PLAIN,25);
         Font f2 = new Font("TimesRoman",Font.PLAIN,18);
@@ -114,10 +116,6 @@ public class View extends JFrame {
         left.add(leftMid,BorderLayout.CENTER);
         left.add(leftBot,BorderLayout.SOUTH);
 
-        //Right
-//        right.setBackground(Color.white);
-//        right.add(addTestPanel());
-
         //Psychology Panel
         psyPanel.add(left,BorderLayout.WEST);
         psyPanel.add(addTestPanel(),BorderLayout.CENTER);
@@ -152,6 +150,17 @@ public class View extends JFrame {
         buttonDefault(nextTest, null, new Color(41, 189, 226));
         nextTest.setBounds(350,500,80,30);
         addTestPanel.add(nextTest);
+
+        // Empty panel
+        emptyPanel = new JPanel(null);
+        JLabel message = new JLabel("Please upload the file", SwingConstants.CENTER);
+        message.setFont( new Font("TimesRoman",Font.PLAIN,28));
+        emptyPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+        emptyPanel.setBackground(Color.white);
+        message.setBounds(0,0,400,200);
+        emptyPanel.setBounds(100,100,400,220);
+        emptyPanel.add(message);
+        addTestPanel.add(emptyPanel);
 
         //Img Panel
         imgPanel = new imgPanel();
@@ -195,9 +204,12 @@ public class View extends JFrame {
         //Text area
         question = new JTextArea("");
         question.setEditable(false);
-        question.setBounds(70,350,500,100);
         question.setBorder(BorderFactory.createLineBorder(Color.black));
-        addTestPanel.add(question);
+        question.setFont(new Font("TimesRoman",Font.PLAIN,18));
+        // Use JScrollPane to hold JTextArea in order to view more info
+        JScrollPane TextJp = new JScrollPane(question);
+        TextJp.setBounds(70,350,500,100);
+        addTestPanel.add(TextJp);
 
         //Add question
         ImageIcon addQIcon = new ImageIcon("static/add.png");
@@ -215,6 +227,64 @@ public class View extends JFrame {
         addTestPanel.add(removeQuestion);
 
         return addTestPanel;
+    }
+
+    public JPanel showTestsPanel() {
+        showTestsPanel = new JPanel(null);
+        showTestsPanel.setBackground(Color.white);
+
+        // Label
+        JLabel label = new JLabel("Psychology Tests List");
+        label.setFont(new Font("TimesRoman",Font.BOLD,22));
+        label.setBounds(50,20,270,80);
+        showTestsPanel.add(label);
+
+
+        DatabaseAgent database = new DatabaseAgent();
+        int max = database.getMaxTID();
+
+        String[][] tests = new String[max][4];
+        String[] title = {"Test Number","Number Of Media","Number Of Questions","Stars"};
+        for (int i = 0; i < max; i++) {
+            tests[i][0] = "Test "+(i+1);
+            tests[i][1] = database.getAttr(i+1,"MEDIAS").size()+"";
+            tests[i][2] = database.getAttr(i+1,"QUESTIONS").size()+"";
+        }
+        database.close();
+        // Cannot be modified
+        JTable testsTable=new JTable(tests,title){
+            public boolean isCellEditable(int row, int column)
+            {
+                return false;
+            }
+        };
+        // Test center
+        DefaultTableCellRenderer r = new DefaultTableCellRenderer();
+        r.setHorizontalAlignment(JLabel.CENTER);
+        testsTable.setDefaultRenderer(Object.class, r);
+
+        testsTable.setRowHeight(30);
+        testsTable.setShowVerticalLines(false);
+
+        testsTable.getTableHeader().setBackground(Color.white);
+        testsTable.setGridColor(new Color(222, 222, 222));
+        testsTable.setFillsViewportHeight(true);
+        // Forbid move header
+        testsTable.getTableHeader().setReorderingAllowed(false);
+        // Cancel header border
+        UIManager.getDefaults().put("TableHeader.cellBorder",BorderFactory.createEmptyBorder(0,0,0,0));
+        // Cell background
+        JScrollPane scrollPane = new JScrollPane(testsTable);
+        scrollPane.getViewport().setBackground(Color.white);
+        // Cancel border
+        scrollPane.setBounds(50,100,500,400);
+        LineBorder lb = new LineBorder(Color.black, 0);
+        scrollPane.setBorder(lb);
+        // Add hover listener
+        tableHover(testsTable);
+
+        showTestsPanel.add(scrollPane);
+        return showTestsPanel;
     }
 
     public void buttonDefault(JButton btn, Font f, Color color){
@@ -252,6 +322,30 @@ public class View extends JFrame {
                 }
             });
         }
+    }
+
+    public void tableHover (JTable table) {
+        table.addMouseMotionListener(new MouseMotionListener() {
+            int hoveredRow = -1, hoveredColumn = -1;
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                java.awt.Point p = e.getPoint();
+                hoveredRow = table.rowAtPoint(p);
+                hoveredColumn = table.columnAtPoint(p);
+                if(hoveredRow>-1&&hoveredRow<table.getRowCount()+1) {
+                    table.repaint();
+                    table.setRowSelectionInterval(hoveredRow, hoveredRow);
+                }else {
+                    table.clearSelection();
+                    table.repaint();
+                }
+            }
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                hoveredRow = hoveredColumn = -1;
+                table.repaint();
+            }
+        });
     }
 }
 

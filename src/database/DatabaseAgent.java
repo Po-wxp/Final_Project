@@ -1,5 +1,8 @@
 package database;
 
+import PsychologyTest.PsychologyTest;
+import jdk.swing.interop.SwingInterOpUtils;
+
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -79,7 +82,25 @@ public class DatabaseAgent {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return max + 1;
+        return max;
+    }
+
+    public ArrayList<String> getAttr(int TID, String attribute) {
+        ArrayList<String> mediaList = new ArrayList();
+        try {
+            PreparedStatement statement = c.prepareStatement("SELECT "+ attribute +" AS M FROM TESTS WHERE TID=?");
+            statement.setInt(1, TID);
+            ResultSet result = statement.executeQuery();
+            while(result.next()){
+                String[] output = result.getString("M").split(";");
+                for(String s : output) mediaList.add(s);
+            }
+            System.out.println("Get attr successfully");
+            statement.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return mediaList;
     }
 
     public void connect() {
