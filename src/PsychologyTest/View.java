@@ -15,17 +15,20 @@ import java.awt.event.MouseMotionListener;
 
 public class View extends JFrame {
     private Controller controller;
-    protected JButton psy, client, add, showList, back, addFiles, save, pre, next, nextTest, addQuestion, removeQuestion;
+    protected JButton psy, client, add, showList, back, back2, addFiles, save, pre, next, nextTest,
+            addQuestion, removeQuestion;
     protected JTextArea question;
     protected JFileChooser fc;
     protected JLabel identity, showURL, uploadNum;
     protected JPanel index;
     protected Color blue;
-    protected JPanel psyPanel, addTestPanel, showTestsPanel, emptyPanel;
+    protected JPanel psyPanel, addTestPanel, showTestsPanel, emptyPanel, clientPanel, doTestPanel;
     protected imgPanel imgPanel;
     protected MediaPlayer mp;
+    protected JTable testsTable;
 
     public View(Controller controller) {
+        initialize();
         this.controller = controller;
         blue = new Color(110, 110, 234);
         this.setSize(800,600);
@@ -252,7 +255,7 @@ public class View extends JFrame {
         }
         database.close();
         // Cannot be modified
-        JTable testsTable=new JTable(tests,title){
+        testsTable=new JTable(tests,title){
             public boolean isCellEditable(int row, int column)
             {
                 return false;
@@ -282,9 +285,81 @@ public class View extends JFrame {
         scrollPane.setBorder(lb);
         // Add hover listener
         tableHover(testsTable);
-
+        testsTable.addMouseListener(controller);
         showTestsPanel.add(scrollPane);
         return showTestsPanel;
+    }
+
+    public JPanel clientPanel() {
+        clientPanel = new JPanel(new BorderLayout());
+
+        JPanel left = new JPanel(new BorderLayout());
+        JPanel leftTop = new JPanel(new BorderLayout());
+        JPanel leftMid = new JPanel(new BorderLayout());
+        JPanel leftBot = new JPanel(new BorderLayout());
+
+        Font f1 = new Font("TimesRoman",Font.PLAIN,25);
+        Font f2 = new Font("TimesRoman",Font.PLAIN,18);
+
+        //Set left color
+        leftTop.setBackground(blue);
+        leftMid.setBackground(blue);
+        leftBot.setBackground(blue);
+
+        // button default
+        JButton showList2 = new JButton("Show Tests");
+        back2= new JButton("Return");
+
+        JButton[] btns = new JButton[2];
+        btns[0] = showList2;
+        btns[1] = back2;
+
+        hover(btns);
+
+        showList2.setActionCommand("unpressed");
+        back2.setActionCommand("unpressed");
+
+        buttonDefault(back2,f2,blue);
+        buttonDefault(showList2,f2,Color.white);
+
+        //Left top -- label
+        leftTop.setPreferredSize(new Dimension(0,100));
+        JLabel identity2 = new JLabel("Client",SwingConstants.CENTER);
+        identity2.setFont(f1);
+        leftTop.add(identity2);
+
+        //Left bottom -- return button
+        leftBot.setPreferredSize(new Dimension(0,100));
+        leftBot.setBorder(BorderFactory.createEmptyBorder(0,0,50,0));
+        leftBot.add(back2);
+
+        //Left mid -- function buttons
+        leftMid.add(showList2);
+        leftMid.setBorder(BorderFactory.createEmptyBorder(50,0,260,0));
+
+        //Left
+        left.setPreferredSize(new Dimension(180,0));
+        left.add(leftTop,BorderLayout.NORTH);
+        left.add(leftMid,BorderLayout.CENTER);
+        left.add(leftBot,BorderLayout.SOUTH);
+
+        //Psychology Panel
+        clientPanel.add(left,BorderLayout.WEST);
+        clientPanel.add(showTestsPanel(),BorderLayout.CENTER);
+
+        return clientPanel;
+    }
+
+    public JPanel doTestPanel(int index) {
+        doTestPanel = new JPanel(null);
+        doTestPanel.setBackground(Color.white);
+
+
+        return doTestPanel;
+    }
+
+    public void initialize(){
+        pre = new JButton();
     }
 
     public void buttonDefault(JButton btn, Font f, Color color){

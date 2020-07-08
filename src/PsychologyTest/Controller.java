@@ -4,13 +4,17 @@ package PsychologyTest;
 import database.DatabaseAgent;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.ArrayList;
 
 
-public class Controller implements ActionListener{
+public class Controller implements ActionListener, MouseListener {
     private View view;
     private Model model;
     private ArrayList<File> filesList;
@@ -18,7 +22,7 @@ public class Controller implements ActionListener{
     private int index = 0;
     private ArrayList<TestPage> testPageList;
     private int pageNum;
-    private boolean show_isSelected, add_isSelected;
+    private boolean show_isSelected, add_isSelected, is_client;
 
     public Controller(Model model) {
         this.model = model;
@@ -30,18 +34,21 @@ public class Controller implements ActionListener{
         pageNum = 1;
         show_isSelected = false;
         add_isSelected = true;
+        is_client = false;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == view.psy) {
             model.switchPanel(view, view.index, view.psyPanel());
+            is_client = false;
+        }
+        if (e.getSource() == view.client) {
+            model.switchPanel(view, view.index, view.clientPanel());
+            is_client = true;
         }
         if (e.getSource() == view.add) {
 //            view.add.setBackground(Color.white);
-        }
-        if (e.getSource() == view.back) {
-            model.switchPanel(view, view.psyPanel, view.index);
         }
 
         if (e.getSource() == view.addFiles){
@@ -71,10 +78,15 @@ public class Controller implements ActionListener{
         }
 
         if(e.getSource() == view.back){
+            model.switchPanel(view, view.psyPanel, view.index);
             nextPageInitialize();
             initialize();
             show_isSelected = false;
             add_isSelected = true;
+        }
+
+        if(e.getSource() == view.back2){
+            model.switchPanel(view, view.clientPanel, view.index);
         }
 
         if(index == 0 ){
@@ -104,10 +116,12 @@ public class Controller implements ActionListener{
             Object selectedValue = JOptionPane.showInputDialog(null, "Select the index", "Remove a question",
                     JOptionPane.INFORMATION_MESSAGE, null,
                     list, list[0]);
-            questionList.remove((int) selectedValue - 1);
-            showQuestions();
-            if(questionList.size() == 0){
-                view.removeQuestion.setVisible(false);
+            if(selectedValue != null){
+                questionList.remove((int) selectedValue - 1);
+                showQuestions();
+                if(questionList.size() == 0){
+                    view.removeQuestion.setVisible(false);
+                }
             }
         }
 
@@ -124,6 +138,10 @@ public class Controller implements ActionListener{
         }
 
         if (e.getSource() == view.save) {
+            if(testPageList.size() == 0){
+                JOptionPane.showMessageDialog(null, "Please input at least one question", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             ArrayList<File> newFiles = model.copyFile(testPageList);
             saveData(newFiles);
             nextPageInitialize();
@@ -221,6 +239,33 @@ public class Controller implements ActionListener{
     public void initialize() {
         pageNum = 1;
         testPageList = new ArrayList();
+        is_client = false;
     }
 
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if(is_client){
+            model.changePanel(view.clientPanel, view.showTestsPanel, view.doTestPanel(view.testsTable.getSelectedRow()));
+        }
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
+    }
 }
