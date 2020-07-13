@@ -137,8 +137,11 @@ public class DatabaseAgent {
             statement.setInt(2, TPID);
             result = statement.executeQuery();
             while(result.next()){
-                String[] output = result.getString("M").split(";");
-                for(String s : output) filesUrl.add(s);
+                String media = result.getString("M");
+                if (!media.equals("")){
+                    String[] output = media.split(";");
+                    for(String s : output) filesUrl.add(s);
+                }
             }
             System.out.println("Get attr successfully");
             statement.close();

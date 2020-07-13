@@ -216,21 +216,23 @@ public class Controller implements ActionListener, MouseListener {
     }
 
     public void showPanel(){
-        if(model.getFileType(filesList.get(index)).equals("png") || model.getFileType(filesList.get(index)).equals("jpg")){
-            view.imgPanel.setVisible(true);
-            view.mp.setVisible(false);
-            view.imgPanel.setImg(filesList.get(index).getAbsolutePath());
-            view.imgPanel.revalidate();
-            view.imgPanel.repaint();
-        }else {
-            view.imgPanel.setVisible(false);
-            view.mp.setVisible(true);
-            view.mp.setFile(filesList.get(index));
-            view.mp.revalidate();
-            view.mp.repaint();
+        if(filesList.size() != 0){
+            if(model.getFileType(filesList.get(index)).equals("png") || model.getFileType(filesList.get(index)).equals("jpg")){
+                view.imgPanel.setVisible(true);
+                view.mp.setVisible(false);
+                view.imgPanel.setImg(filesList.get(index).getAbsolutePath());
+                view.imgPanel.revalidate();
+                view.imgPanel.repaint();
+            }else {
+                view.imgPanel.setVisible(false);
+                view.mp.setVisible(true);
+                view.mp.setFile(filesList.get(index));
+                view.mp.revalidate();
+                view.mp.repaint();
+            }
+            view.showURL.setText(filesList.get(index).getAbsolutePath());
+            view.uploadNum.setText("Total: "+filesList.size()+" items.    "+"Current: "+(index+1));
         }
-        view.showURL.setText(filesList.get(index).getAbsolutePath());
-        view.uploadNum.setText("Total: "+filesList.size()+" items.    "+"Current: "+(index+1));
     }
 
     public void showQuestions(){
@@ -281,7 +283,9 @@ public class Controller implements ActionListener, MouseListener {
             is_showDetailed = true;
             model.changePanel(view.psyPanel, view.showTestsPanel, view.testDetailPanel(testNum,1));
             filesList = view.fileList;
-            showPanel();
+            if(filesList.size() != 0){
+                showPanel();
+            }
             if(filesList.size() > 1){
                 view.next.setVisible(true);
             }

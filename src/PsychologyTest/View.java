@@ -31,6 +31,7 @@ public class View extends JFrame {
     protected ArrayList<File> fileList;
     private DatabaseAgent database;
     private Font f1, f2;
+    private JScrollPane TextJp;
 
     public View(Controller controller) {
         initialize();
@@ -206,7 +207,7 @@ public class View extends JFrame {
         question.setBorder(BorderFactory.createLineBorder(Color.black));
         question.setFont(f2);
         // Use JScrollPane to hold JTextArea in order to view more info
-        JScrollPane TextJp = new JScrollPane(question);
+        TextJp = new JScrollPane(question);
         TextJp.setBounds(70, 350, 500, 100);
         TextJp.setBorder(null);
         if (!has_border) {
@@ -260,7 +261,7 @@ public class View extends JFrame {
         int max = database.getMaxTID();
 
         String[][] tests = new String[max][6];
-        String[] title = {"No", "Media Count", "Questions Count", "Author", "Creation date", "Stars"};
+        String[] title = {"No", "Media Count", "Questions Count", "Publisher", "Creation date", "Stars"};
         for (int i = 0; i < max; i++) {
             tests[i][0] = "" + (i + 1);
             tests[i][1] = database.getAttr(i + 1, "MEDIAS").size() + "";
@@ -424,7 +425,7 @@ public class View extends JFrame {
 
         // Query media files
         if (lists.size() == 0) {
-//            question.setBounds(70, 100, 460, 320);
+            TextJp.setBounds(70, 100, 460, 320);
         } else {
             mediaDisplay(testDetailPanel);
             for (String s : lists) {
