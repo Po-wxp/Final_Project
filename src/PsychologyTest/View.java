@@ -12,26 +12,31 @@ import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.io.File;
+import java.util.ArrayList;
 
 public class View extends JFrame {
     private Controller controller;
     protected JButton psy, client, add, showList, back, back2, addFiles, save, pre, next, nextTest,
-            addQuestion, removeQuestion;
+            addQuestion, removeQuestion, edit, showNextPage;
     protected JTextArea question;
     protected JFileChooser fc;
     protected JLabel identity, showURL, uploadNum;
     protected JPanel index;
     protected Color blue;
-    protected JPanel psyPanel, addTestPanel, showTestsPanel, emptyPanel, clientPanel, doTestPanel,testDetailPanel;
+    protected JPanel psyPanel, addTestPanel, showTestsPanel, emptyPanel, clientPanel, doTestPanel, testDetailPanel;
     protected imgPanel imgPanel;
     protected MediaPlayer mp;
     protected JTable testsTable;
+    protected ArrayList<File> fileList;
+    private DatabaseAgent database;
+    private Font f1, f2;
 
     public View(Controller controller) {
         initialize();
         this.controller = controller;
         blue = new Color(110, 110, 234);
-        this.setSize(800,600);
+        this.setSize(800, 600);
         this.setTitle("Psychology Test");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -45,16 +50,16 @@ public class View extends JFrame {
         this.add(index());
     }
 
-    public JPanel index(){
-        index = new JPanel(new GridLayout(2,1,0,50));
-        index.setBorder(BorderFactory.createEmptyBorder(200,300,200,300));
+    public JPanel index() {
+        index = new JPanel(new GridLayout(2, 1, 0, 50));
+        index.setBorder(BorderFactory.createEmptyBorder(200, 300, 200, 300));
         index.setBackground(Color.white);
 
         // Buttons default;
         psy = new JButton("Psychologist");
         client = new JButton("Client");
-        buttonDefault(psy,null,new Color(39, 159, 179));
-        buttonDefault(client,null,new Color(39, 159, 179));
+        buttonDefault(psy, null, new Color(39, 159, 179));
+        buttonDefault(client, null, new Color(39, 159, 179));
 
         index.add(psy);
         index.add(client);
@@ -66,11 +71,8 @@ public class View extends JFrame {
         psyPanel = new JPanel(new BorderLayout());
         JPanel left = new JPanel(new BorderLayout());
         JPanel leftTop = new JPanel(new BorderLayout());
-        JPanel leftMid = new JPanel(new GridLayout(2,1,0,20));
+        JPanel leftMid = new JPanel(new GridLayout(2, 1, 0, 20));
         JPanel leftBot = new JPanel(new BorderLayout());
-
-        Font f1 = new Font("TimesRoman",Font.PLAIN,25);
-        Font f2 = new Font("TimesRoman",Font.PLAIN,18);
 
         //Set left color
         leftTop.setBackground(blue);
@@ -80,7 +82,7 @@ public class View extends JFrame {
         // button default
         add = new JButton("Add Tests");
         showList = new JButton("Show Tests");
-        back= new JButton("Return");
+        back = new JButton("Return");
 
         JButton[] btns = new JButton[3];
         btns[0] = add;
@@ -93,35 +95,35 @@ public class View extends JFrame {
         showList.setActionCommand("unpressed");
         back.setActionCommand("unpressed");
 
-        buttonDefault(back,f2,blue);
-        buttonDefault(add,f2,Color.white);
-        buttonDefault(showList,f2,blue);
+        buttonDefault(back, f2, blue);
+        buttonDefault(add, f2, Color.white);
+        buttonDefault(showList, f2, blue);
 
         //Left top -- label
-        leftTop.setPreferredSize(new Dimension(0,100));
-        identity = new JLabel("Psychology",SwingConstants.CENTER);
+        leftTop.setPreferredSize(new Dimension(0, 100));
+        identity = new JLabel("Psychology", SwingConstants.CENTER);
         identity.setFont(f1);
         leftTop.add(identity);
 
         //Left bottom -- return button
-        leftBot.setPreferredSize(new Dimension(0,100));
-        leftBot.setBorder(BorderFactory.createEmptyBorder(0,0,50,0));
+        leftBot.setPreferredSize(new Dimension(0, 100));
+        leftBot.setBorder(BorderFactory.createEmptyBorder(0, 0, 50, 0));
         leftBot.add(back);
 
         //Left mid -- function buttons
         leftMid.add(add);
         leftMid.add(showList);
-        leftMid.setBorder(BorderFactory.createEmptyBorder(50,0,200,0));
+        leftMid.setBorder(BorderFactory.createEmptyBorder(50, 0, 200, 0));
 
         //Left
-        left.setPreferredSize(new Dimension(180,0));
-        left.add(leftTop,BorderLayout.NORTH);
-        left.add(leftMid,BorderLayout.CENTER);
-        left.add(leftBot,BorderLayout.SOUTH);
+        left.setPreferredSize(new Dimension(180, 0));
+        left.add(leftTop, BorderLayout.NORTH);
+        left.add(leftMid, BorderLayout.CENTER);
+        left.add(leftBot, BorderLayout.SOUTH);
 
         //Psychology Panel
-        psyPanel.add(left,BorderLayout.WEST);
-        psyPanel.add(addTestPanel(),BorderLayout.CENTER);
+        psyPanel.add(left, BorderLayout.WEST);
+        psyPanel.add(addTestPanel(), BorderLayout.CENTER);
 
         return psyPanel;
     }
@@ -132,67 +134,58 @@ public class View extends JFrame {
 
         //Add button
         addFiles = new JButton("Add Files");
-        buttonDefault(addFiles,null,new Color(41, 189, 226));
-        addFiles.setBounds(30,30,100,30);
+        buttonDefault(addFiles, null, new Color(41, 189, 226));
+        addFiles.setBounds(30, 30, 100, 30);
         addTestPanel.add(addFiles);
 
         //File chooser
         fc = new JFileChooser();
         fc.setMultiSelectionEnabled(true);
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG & PNG & MP4 & MP3","jpg", "png", "mp4", "mp3");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG & PNG & MP4 & MP3", "jpg", "png", "mp4", "mp3");
         fc.setFileFilter(filter);
 
         // Save Button
         save = new JButton("Save");
         buttonDefault(save, null, new Color(41, 189, 226));
-        save.setBounds(480,500,80,30);
+        save.setBounds(480, 500, 80, 30);
         addTestPanel.add(save);
 
         //Next Test Button
         nextTest = new JButton("Next");
         buttonDefault(nextTest, null, new Color(41, 189, 226));
-        nextTest.setBounds(350,500,80,30);
+        nextTest.setBounds(350, 500, 80, 30);
         addTestPanel.add(nextTest);
 
         // Empty panel
         emptyPanel = new JPanel(null);
         JLabel message = new JLabel("Please upload the file", SwingConstants.CENTER);
-        message.setFont( new Font("TimesRoman",Font.PLAIN,28));
+        message.setFont(new Font("TimesRoman", Font.PLAIN, 28));
         emptyPanel.setBorder(BorderFactory.createLineBorder(Color.black));
         emptyPanel.setBackground(Color.white);
-        message.setBounds(0,0,400,200);
-        emptyPanel.setBounds(100,100,400,220);
+        message.setBounds(0, 0, 400, 200);
+        emptyPanel.setBounds(100, 100, 400, 220);
         emptyPanel.add(message);
         addTestPanel.add(emptyPanel);
 
         mediaDisplay(addTestPanel);
+        textAreaDisplay(addTestPanel, true);
 
         // Show URL
         showURL = new JLabel("");
-        showURL.setBounds(110,80,400,20);
+        showURL.setBounds(110, 80, 400, 20);
         addTestPanel.add(showURL);
 
         // Upload numbers
         uploadNum = new JLabel("");
-        uploadNum.setBounds(110,320,200,20);
+        uploadNum.setBounds(110, 320, 200, 20);
         addTestPanel.add(uploadNum);
 
-
-        //Text area
-        question = new JTextArea("");
-        question.setEditable(false);
-        question.setBorder(BorderFactory.createLineBorder(Color.black));
-        question.setFont(new Font("TimesRoman",Font.PLAIN,18));
-        // Use JScrollPane to hold JTextArea in order to view more info
-        JScrollPane TextJp = new JScrollPane(question);
-        TextJp.setBounds(70,350,500,100);
-        addTestPanel.add(TextJp);
 
         //Add question
         ImageIcon addQIcon = new ImageIcon("static/add.png");
         addQuestion = new JButton(addQIcon);
         buttonDefault(addQuestion, null, Color.white);
-        addQuestion.setBounds(70,460,40,40);
+        addQuestion.setBounds(70, 460, 40, 40);
         addTestPanel.add(addQuestion);
 
         //Remove question
@@ -200,10 +193,26 @@ public class View extends JFrame {
         removeQuestion = new JButton(removeIcon);
         removeQuestion.setVisible(false);
         buttonDefault(removeQuestion, null, Color.white);
-        removeQuestion.setBounds(140,460,40,40);
+        removeQuestion.setBounds(140, 460, 40, 40);
         addTestPanel.add(removeQuestion);
 
         return addTestPanel;
+    }
+
+    public void textAreaDisplay(JPanel panel, boolean has_border) {
+        //Text area
+        question = new JTextArea("");
+        question.setEditable(false);
+        question.setBorder(BorderFactory.createLineBorder(Color.black));
+        question.setFont(f2);
+        // Use JScrollPane to hold JTextArea in order to view more info
+        JScrollPane TextJp = new JScrollPane(question);
+        TextJp.setBounds(70, 350, 500, 100);
+        TextJp.setBorder(null);
+        if (!has_border) {
+            question.setBorder(null);
+        }
+        panel.add(TextJp);
     }
 
     public void mediaDisplay(JPanel panel) {
@@ -212,14 +221,14 @@ public class View extends JFrame {
         imgPanel.setVisible(false);
         imgPanel.setBorder(BorderFactory.createLineBorder(Color.black));
         imgPanel.setBackground(Color.white);
-        imgPanel.setBounds(100,100,400,220);
+        imgPanel.setBounds(100, 100, 400, 220);
         panel.add(imgPanel);
 
         // Media Panel
         NativeLibrary.addSearchPath(RuntimeUtil.getLibVlcLibraryName(), "d:/VideoLAN/VLC");
         mp = new MediaPlayer();
         mp.setVisible(false);
-        mp.setBounds(100,100,400,220);
+        mp.setBounds(100, 100, 400, 220);
         panel.add(mp);
 
         //Pre, next buttons
@@ -227,12 +236,12 @@ public class View extends JFrame {
         next = new JButton(">");
         pre.setVisible(false);
         next.setVisible(false);
-        buttonDefault(pre,new Font("TimesRoman",Font.PLAIN,18),null);
-        buttonDefault(next,new Font("TimesRoman",Font.PLAIN,18),null);
+        buttonDefault(pre, f2, null);
+        buttonDefault(next, f2, null);
         pre.setContentAreaFilled(false);
         next.setContentAreaFilled(false);
-        pre.setBounds(400,305,50,50);
-        next.setBounds(460,305,50,50);
+        pre.setBounds(400, 305, 50, 50);
+        next.setBounds(460, 305, 50, 50);
         panel.add(pre);
         panel.add(next);
     }
@@ -243,26 +252,24 @@ public class View extends JFrame {
 
         // Label
         JLabel label = new JLabel("Psychology Tests List");
-        label.setFont(new Font("TimesRoman",Font.BOLD,22));
-        label.setBounds(50,20,270,80);
+        label.setFont(new Font("TimesRoman", Font.BOLD, 22));
+        label.setBounds(50, 20, 270, 80);
         showTestsPanel.add(label);
 
-
-        DatabaseAgent database = new DatabaseAgent();
+        database.connect();
         int max = database.getMaxTID();
 
         String[][] tests = new String[max][6];
-        String[] title = {"No","Media Count","Questions Count","Author","Creation date","Stars"};
+        String[] title = {"No", "Media Count", "Questions Count", "Author", "Creation date", "Stars"};
         for (int i = 0; i < max; i++) {
-            tests[i][0] = ""+(i+1);
-            tests[i][1] = database.getAttr(i+1,"MEDIAS").size()+"";
-            tests[i][2] = database.getAttr(i+1,"QUESTIONS").size()+"";
+            tests[i][0] = "" + (i + 1);
+            tests[i][1] = database.getAttr(i + 1, "MEDIAS").size() + "";
+            tests[i][2] = database.getAttr(i + 1, "QUESTIONS").size() + "";
         }
         database.close();
         // Cannot be modified
-        testsTable=new JTable(tests,title){
-            public boolean isCellEditable(int row, int column)
-            {
+        testsTable = new JTable(tests, title) {
+            public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
@@ -280,12 +287,12 @@ public class View extends JFrame {
         // Forbid move header
         testsTable.getTableHeader().setReorderingAllowed(false);
         // Cancel header border
-        UIManager.getDefaults().put("TableHeader.cellBorder",BorderFactory.createEmptyBorder(0,0,0,0));
+        UIManager.getDefaults().put("TableHeader.cellBorder", BorderFactory.createEmptyBorder(0, 0, 0, 0));
         // Cell background
         JScrollPane scrollPane = new JScrollPane(testsTable);
         scrollPane.getViewport().setBackground(Color.white);
         // Cancel border
-        scrollPane.setBounds(50,100,500,400);
+        scrollPane.setBounds(50, 100, 500, 400);
         LineBorder lb = new LineBorder(Color.black, 0);
         scrollPane.setBorder(lb);
         // Add hover listener
@@ -304,9 +311,6 @@ public class View extends JFrame {
         JPanel leftMid = new JPanel(new BorderLayout());
         JPanel leftBot = new JPanel(new BorderLayout());
 
-        Font f1 = new Font("TimesRoman",Font.PLAIN,25);
-        Font f2 = new Font("TimesRoman",Font.PLAIN,18);
-
         //Set left color
         leftTop.setBackground(blue);
         leftMid.setBackground(blue);
@@ -314,7 +318,7 @@ public class View extends JFrame {
 
         // button default
         JButton showList2 = new JButton("Show Tests");
-        back2= new JButton("Return");
+        back2 = new JButton("Return");
 
         JButton[] btns = new JButton[2];
         btns[0] = showList2;
@@ -325,33 +329,33 @@ public class View extends JFrame {
         showList2.setActionCommand("isPressed");
         back2.setActionCommand("unpressed");
 
-        buttonDefault(back2,f2,blue);
-        buttonDefault(showList2,f2,Color.white);
+        buttonDefault(back2, f2, blue);
+        buttonDefault(showList2, f2, Color.white);
 
         //Left top -- label
-        leftTop.setPreferredSize(new Dimension(0,100));
-        JLabel identity2 = new JLabel("Client",SwingConstants.CENTER);
+        leftTop.setPreferredSize(new Dimension(0, 100));
+        JLabel identity2 = new JLabel("Client", SwingConstants.CENTER);
         identity2.setFont(f1);
         leftTop.add(identity2);
 
         //Left bottom -- return button
-        leftBot.setPreferredSize(new Dimension(0,100));
-        leftBot.setBorder(BorderFactory.createEmptyBorder(0,0,50,0));
+        leftBot.setPreferredSize(new Dimension(0, 100));
+        leftBot.setBorder(BorderFactory.createEmptyBorder(0, 0, 50, 0));
         leftBot.add(back2);
 
         //Left mid -- function buttons
         leftMid.add(showList2);
-        leftMid.setBorder(BorderFactory.createEmptyBorder(50,0,260,0));
+        leftMid.setBorder(BorderFactory.createEmptyBorder(50, 0, 260, 0));
 
         //Left
-        left.setPreferredSize(new Dimension(180,0));
-        left.add(leftTop,BorderLayout.NORTH);
-        left.add(leftMid,BorderLayout.CENTER);
-        left.add(leftBot,BorderLayout.SOUTH);
+        left.setPreferredSize(new Dimension(180, 0));
+        left.add(leftTop, BorderLayout.NORTH);
+        left.add(leftMid, BorderLayout.CENTER);
+        left.add(leftBot, BorderLayout.SOUTH);
 
         //Psychology Panel
-        clientPanel.add(left,BorderLayout.WEST);
-        clientPanel.add(showTestsPanel(),BorderLayout.CENTER);
+        clientPanel.add(left, BorderLayout.WEST);
+        clientPanel.add(showTestsPanel(), BorderLayout.CENTER);
 
         return clientPanel;
     }
@@ -364,49 +368,101 @@ public class View extends JFrame {
         return doTestPanel;
     }
 
-    public JPanel testDetailPanel(int TID, int TPID){
+    public JPanel testDetailPanel(int TID, int TPID) {
         testDetailPanel = new JPanel(null);
         testDetailPanel.setBackground(Color.white);
-        mediaDisplay(testDetailPanel);
+
+        // Database Query
+        database.connect();
+        ArrayList<String> questionsList = database.getPageMediaList(TID, TPID, "QUESTIONS");
+        ArrayList<String> lists = database.getPageMediaList(TID, TPID, "MEDIAS");
+        int maxPageID = database.getMaxPageID(TID);
+        System.out.println(maxPageID);
+        database.close();
+
+        // Edit Button
+        edit = new JButton("Edit");
+        buttonDefault(edit, null, new Color(41, 189, 226));
+        edit.setBounds(30, 30, 100, 30);
+        testDetailPanel.add(edit);
+
+        // Next Page Button
+        if(TPID < maxPageID) {
+            showNextPage = new JButton("Next Page");
+            buttonDefault(showNextPage, null, new Color(41, 189, 226));
+            showNextPage.setBounds(430, 500, 100, 30);
+            testDetailPanel.add(showNextPage);
+        }
+        // Query questions for specific page
+        String content = "";
+        for (int i = 1; i <= questionsList.size(); i++) {
+            content += "Q" + i + ": " + questionsList.get(i - 1) + "\n";
+        }
+
+        // Display TextArea
+        textAreaDisplay(testDetailPanel, false);
+        question.setText(content);
+//        JTextArea questions= new JTextArea(content);
+//        questions.setEditable(false);
+//        questions.setFont( new Font("TimesRoman",Font.PLAIN,25));
+//        JScrollPane TextJp = new JScrollPane(questions);
+//        TextJp.setBounds(50,290, 500,210);
+//        TextJp.setBorder(null);
+//        testDetailPanel.add(TextJp);
 
         // Query media files
-        
+        if (lists.size() == 0) {
 
+        } else {
+            mediaDisplay(testDetailPanel);
+//            pre.setBounds(400,245,50,50);
+//            next.setBounds(460,245,50,50);
+//            imgPanel.setBounds(100,40,400,220);
+//            mp.setBounds(100,40,400,220);
+            for (String s : lists) {
+                File file = new File(s);
+                fileList.add(file);
+            }
+        }
 
         return testDetailPanel;
     }
 
-    public void initialize(){
+    public void initialize() {
         pre = new JButton();
+        database = new DatabaseAgent();
+        fileList = new ArrayList();
+        f1 = new Font("TimesRoman", Font.PLAIN, 25);
+        f2 = new Font("TimesRoman", Font.PLAIN, 18);
     }
 
-    public void buttonDefault(JButton btn, Font f, Color color){
+    public void buttonDefault(JButton btn, Font f, Color color) {
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
         btn.addActionListener(controller);
-        if(f!=null){
+        if (f != null) {
             btn.setFont(f);
         }
-        if(color !=null){
+        if (color != null) {
             btn.setBackground(color);
         }
     }
 
     public void hover(JButton[] btns) {
-        for(JButton btn : btns){
+        for (JButton btn : btns) {
             btn.addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseEntered(MouseEvent e) {
                     btn.setBackground(Color.white);
                 }
 
                 public void mouseExited(MouseEvent e) {
-                    if(btn.getActionCommand().equals("unpressed")){
+                    if (btn.getActionCommand().equals("unpressed")) {
                         btn.setBackground(blue);
                     }
                 }
 
                 public void mouseClicked(MouseEvent e) {
-                    for(JButton b : btns){
+                    for (JButton b : btns) {
                         b.setActionCommand("unpressed");
                         b.setBackground(blue);
                     }
@@ -417,22 +473,24 @@ public class View extends JFrame {
         }
     }
 
-    public void tableHover (JTable table) {
+    public void tableHover(JTable table) {
         table.addMouseMotionListener(new MouseMotionListener() {
             int hoveredRow = -1, hoveredColumn = -1;
+
             @Override
             public void mouseMoved(MouseEvent e) {
                 java.awt.Point p = e.getPoint();
                 hoveredRow = table.rowAtPoint(p);
                 hoveredColumn = table.columnAtPoint(p);
-                if(hoveredRow>-1&&hoveredRow<table.getRowCount()+1) {
+                if (hoveredRow > -1 && hoveredRow < table.getRowCount() + 1) {
                     table.repaint();
                     table.setRowSelectionInterval(hoveredRow, hoveredRow);
-                }else {
+                } else {
                     table.clearSelection();
                     table.repaint();
                 }
             }
+
             @Override
             public void mouseDragged(MouseEvent e) {
                 hoveredRow = hoveredColumn = -1;
@@ -442,24 +500,24 @@ public class View extends JFrame {
     }
 }
 
-class imgPanel extends JPanel{
+class imgPanel extends JPanel {
 
-        ImageIcon icon;
-        Image img;
+    ImageIcon icon;
+    Image img;
 
-        public imgPanel() {
-            this.setLayout(null);
-        }
+    public imgPanel() {
+        this.setLayout(null);
+    }
 
-        public void setImg(String filePath) {
-            icon=new ImageIcon(filePath);
-            img=icon.getImage();
-        }
+    public void setImg(String filePath) {
+        icon = new ImageIcon(filePath);
+        img = icon.getImage();
+    }
 
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            g.drawImage(img,0, 0,400,220,this);
-        }
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        g.drawImage(img, 0, 0, 400, 220, this);
+    }
 }
 

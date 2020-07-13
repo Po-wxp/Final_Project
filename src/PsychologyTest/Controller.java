@@ -4,8 +4,6 @@ package PsychologyTest;
 import database.DatabaseAgent;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -161,6 +159,8 @@ public class Controller implements ActionListener, MouseListener {
             if(!add_isSelected){
                 add_isSelected = true;
                 show_isSelected = false;
+                nextPageInitialize();
+                initialize();
                 if(!is_showDetailed){
                     model.changePanel(view.psyPanel, view.showTestsPanel, view.addTestPanel());
                 }else{
@@ -186,6 +186,7 @@ public class Controller implements ActionListener, MouseListener {
         }
 
         DatabaseAgent database = new DatabaseAgent();
+        database.connect();
         int TID = database.getMaxTID() + 1;
         database.upload(TID, pageNum, urls, questions);
         database.close();
@@ -239,6 +240,7 @@ public class Controller implements ActionListener, MouseListener {
         view.next.setVisible(false);
         view.pre.setVisible(false);
         view.emptyPanel.setVisible(true);
+        view.fileList = new ArrayList();
     }
 
     public void initialize() {
@@ -250,10 +252,15 @@ public class Controller implements ActionListener, MouseListener {
     @Override
     public void mouseClicked(MouseEvent e) {
         if(is_client){
-            model.changePanel(view.clientPanel, view.showTestsPanel, view.doTestPanel(view.testsTable.getSelectedRow()));
+            model.changePanel(view.clientPanel, view.showTestsPanel, view.doTestPanel(view.testsTable.getSelectedRow()+1));
         }else{
             is_showDetailed = true;
-            model.changePanel(view.psyPanel, view.showTestsPanel, view.testDetailPanel(view.testsTable.getSelectedRow(),1));
+            model.changePanel(view.psyPanel, view.showTestsPanel, view.testDetailPanel(view.testsTable.getSelectedRow()+1,1));
+            filesList = view.fileList;
+            showPanel();
+            if(filesList.size() > 1){
+                view.next.setVisible(true);
+            }
         }
     }
 
