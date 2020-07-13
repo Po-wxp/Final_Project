@@ -22,7 +22,7 @@ public class Controller implements ActionListener, MouseListener {
     private int index = 0;
     private ArrayList<TestPage> testPageList;
     private int pageNum;
-    private boolean show_isSelected, add_isSelected, is_client;
+    private boolean show_isSelected, add_isSelected, is_client, is_showDetailed;
 
     public Controller(Model model) {
         this.model = model;
@@ -35,6 +35,8 @@ public class Controller implements ActionListener, MouseListener {
         show_isSelected = false;
         add_isSelected = true;
         is_client = false;
+        // If the table is be clicked to show detail
+        is_showDetailed = false;
     }
 
     @Override
@@ -46,9 +48,6 @@ public class Controller implements ActionListener, MouseListener {
         if (e.getSource() == view.client) {
             model.switchPanel(view, view.index, view.clientPanel());
             is_client = true;
-        }
-        if (e.getSource() == view.add) {
-//            view.add.setBackground(Color.white);
         }
 
         if (e.getSource() == view.addFiles){
@@ -162,7 +161,13 @@ public class Controller implements ActionListener, MouseListener {
             if(!add_isSelected){
                 add_isSelected = true;
                 show_isSelected = false;
-                model.changePanel(view.psyPanel, view.showTestsPanel, view.addTestPanel);
+                if(!is_showDetailed){
+                    model.changePanel(view.psyPanel, view.showTestsPanel, view.addTestPanel());
+                }else{
+                    model.changePanel(view.psyPanel, view.testDetailPanel, view.showTestsPanel);
+                    model.changePanel(view.psyPanel, view.showTestsPanel, view.addTestPanel());
+                    is_showDetailed = false;
+                }
             }
         }
     }
@@ -246,6 +251,9 @@ public class Controller implements ActionListener, MouseListener {
     public void mouseClicked(MouseEvent e) {
         if(is_client){
             model.changePanel(view.clientPanel, view.showTestsPanel, view.doTestPanel(view.testsTable.getSelectedRow()));
+        }else{
+            is_showDetailed = true;
+            model.changePanel(view.psyPanel, view.showTestsPanel, view.testDetailPanel(view.testsTable.getSelectedRow(),1));
         }
     }
 

@@ -22,7 +22,7 @@ public class View extends JFrame {
     protected JLabel identity, showURL, uploadNum;
     protected JPanel index;
     protected Color blue;
-    protected JPanel psyPanel, addTestPanel, showTestsPanel, emptyPanel, clientPanel, doTestPanel;
+    protected JPanel psyPanel, addTestPanel, showTestsPanel, emptyPanel, clientPanel, doTestPanel,testDetailPanel;
     protected imgPanel imgPanel;
     protected MediaPlayer mp;
     protected JTable testsTable;
@@ -89,7 +89,7 @@ public class View extends JFrame {
 
         hover(btns);
 
-        add.setActionCommand("unpressed");
+        add.setActionCommand("isPressed");
         showList.setActionCommand("unpressed");
         back.setActionCommand("unpressed");
 
@@ -165,20 +165,7 @@ public class View extends JFrame {
         emptyPanel.add(message);
         addTestPanel.add(emptyPanel);
 
-        //Img Panel
-        imgPanel = new imgPanel();
-        imgPanel.setVisible(false);
-        imgPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-        imgPanel.setBackground(Color.white);
-        imgPanel.setBounds(100,100,400,220);
-        addTestPanel.add(imgPanel);
-
-        // Media Panel
-        NativeLibrary.addSearchPath(RuntimeUtil.getLibVlcLibraryName(), "d:/VideoLAN/VLC");
-        mp = new MediaPlayer();
-        mp.setVisible(false);
-        mp.setBounds(100,100,400,220);
-        addTestPanel.add(mp);
+        mediaDisplay(addTestPanel);
 
         // Show URL
         showURL = new JLabel("");
@@ -190,19 +177,6 @@ public class View extends JFrame {
         uploadNum.setBounds(110,320,200,20);
         addTestPanel.add(uploadNum);
 
-        //Pre, next buttons
-        pre = new JButton("<");
-        next = new JButton(">");
-        pre.setVisible(false);
-        next.setVisible(false);
-        buttonDefault(pre,new Font("TimesRoman",Font.PLAIN,18),null);
-        buttonDefault(next,new Font("TimesRoman",Font.PLAIN,18),null);
-        pre.setContentAreaFilled(false);
-        next.setContentAreaFilled(false);
-        pre.setBounds(400,305,50,50);
-        next.setBounds(460,305,50,50);
-        addTestPanel.add(pre);
-        addTestPanel.add(next);
 
         //Text area
         question = new JTextArea("");
@@ -232,6 +206,37 @@ public class View extends JFrame {
         return addTestPanel;
     }
 
+    public void mediaDisplay(JPanel panel) {
+        //Img Panel
+        imgPanel = new imgPanel();
+        imgPanel.setVisible(false);
+        imgPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+        imgPanel.setBackground(Color.white);
+        imgPanel.setBounds(100,100,400,220);
+        panel.add(imgPanel);
+
+        // Media Panel
+        NativeLibrary.addSearchPath(RuntimeUtil.getLibVlcLibraryName(), "d:/VideoLAN/VLC");
+        mp = new MediaPlayer();
+        mp.setVisible(false);
+        mp.setBounds(100,100,400,220);
+        panel.add(mp);
+
+        //Pre, next buttons
+        pre = new JButton("<");
+        next = new JButton(">");
+        pre.setVisible(false);
+        next.setVisible(false);
+        buttonDefault(pre,new Font("TimesRoman",Font.PLAIN,18),null);
+        buttonDefault(next,new Font("TimesRoman",Font.PLAIN,18),null);
+        pre.setContentAreaFilled(false);
+        next.setContentAreaFilled(false);
+        pre.setBounds(400,305,50,50);
+        next.setBounds(460,305,50,50);
+        panel.add(pre);
+        panel.add(next);
+    }
+
     public JPanel showTestsPanel() {
         showTestsPanel = new JPanel(null);
         showTestsPanel.setBackground(Color.white);
@@ -246,10 +251,10 @@ public class View extends JFrame {
         DatabaseAgent database = new DatabaseAgent();
         int max = database.getMaxTID();
 
-        String[][] tests = new String[max][4];
-        String[] title = {"Test Number","Number Of Media","Number Of Questions","Stars"};
+        String[][] tests = new String[max][6];
+        String[] title = {"No","Media Count","Questions Count","Author","Creation date","Stars"};
         for (int i = 0; i < max; i++) {
-            tests[i][0] = "Test "+(i+1);
+            tests[i][0] = ""+(i+1);
             tests[i][1] = database.getAttr(i+1,"MEDIAS").size()+"";
             tests[i][2] = database.getAttr(i+1,"QUESTIONS").size()+"";
         }
@@ -265,7 +270,7 @@ public class View extends JFrame {
         DefaultTableCellRenderer r = new DefaultTableCellRenderer();
         r.setHorizontalAlignment(JLabel.CENTER);
         testsTable.setDefaultRenderer(Object.class, r);
-
+        testsTable.getColumn(title[0]).setPreferredWidth(20);
         testsTable.setRowHeight(30);
         testsTable.setShowVerticalLines(false);
 
@@ -286,6 +291,7 @@ public class View extends JFrame {
         // Add hover listener
         tableHover(testsTable);
         testsTable.addMouseListener(controller);
+
         showTestsPanel.add(scrollPane);
         return showTestsPanel;
     }
@@ -316,7 +322,7 @@ public class View extends JFrame {
 
         hover(btns);
 
-        showList2.setActionCommand("unpressed");
+        showList2.setActionCommand("isPressed");
         back2.setActionCommand("unpressed");
 
         buttonDefault(back2,f2,blue);
@@ -356,6 +362,18 @@ public class View extends JFrame {
 
 
         return doTestPanel;
+    }
+
+    public JPanel testDetailPanel(int TID, int TPID){
+        testDetailPanel = new JPanel(null);
+        testDetailPanel.setBackground(Color.white);
+        mediaDisplay(testDetailPanel);
+
+        // Query media files
+        
+
+
+        return testDetailPanel;
     }
 
     public void initialize(){
