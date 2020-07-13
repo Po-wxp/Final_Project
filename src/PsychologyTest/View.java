@@ -18,7 +18,7 @@ import java.util.ArrayList;
 public class View extends JFrame {
     private Controller controller;
     protected JButton psy, client, add, showList, back, back2, addFiles, save, pre, next, nextTest,
-            addQuestion, removeQuestion, edit, showNextPage;
+            addQuestion, removeQuestion, edit, showNextPage, showPrePage,backToList;
     protected JTextArea question;
     protected JFileChooser fc;
     protected JLabel identity, showURL, uploadNum;
@@ -377,7 +377,6 @@ public class View extends JFrame {
         ArrayList<String> questionsList = database.getPageMediaList(TID, TPID, "QUESTIONS");
         ArrayList<String> lists = database.getPageMediaList(TID, TPID, "MEDIAS");
         int maxPageID = database.getMaxPageID(TID);
-        System.out.println(maxPageID);
         database.close();
 
         // Edit Button
@@ -386,13 +385,33 @@ public class View extends JFrame {
         edit.setBounds(30, 30, 100, 30);
         testDetailPanel.add(edit);
 
+        // Back Button
+        ImageIcon backIcon = new ImageIcon("static/back.png");
+        backToList = new JButton(backIcon);
+        buttonDefault(backToList,null,null);
+        backToList.setBounds(500,50,40,40);
+        testDetailPanel.add(backToList);
+
         // Next Page Button
-        if(TPID < maxPageID) {
-            showNextPage = new JButton("Next Page");
-            buttonDefault(showNextPage, null, new Color(41, 189, 226));
-            showNextPage.setBounds(430, 500, 100, 30);
-            testDetailPanel.add(showNextPage);
+        showNextPage = new JButton("Next Page");
+        buttonDefault(showNextPage, null, new Color(41, 189, 226));
+        showNextPage.setBounds(450, 500, 100, 30);
+        testDetailPanel.add(showNextPage);
+        if(TPID >= maxPageID) {
+            showNextPage.setEnabled(false);
+            showNextPage.setText("Final Page");
         }
+
+        // Pre Page Button
+        showPrePage = new JButton("Pre Page");
+        buttonDefault(showPrePage, null, new Color(41, 189, 226));
+        showPrePage.setBounds(310, 500, 100, 30);
+        testDetailPanel.add(showPrePage);
+        if(TPID == 1) {
+            showPrePage.setEnabled(false);
+            showPrePage.setText("First Page");
+        }
+
         // Query questions for specific page
         String content = "";
         for (int i = 1; i <= questionsList.size(); i++) {
@@ -402,23 +421,12 @@ public class View extends JFrame {
         // Display TextArea
         textAreaDisplay(testDetailPanel, false);
         question.setText(content);
-//        JTextArea questions= new JTextArea(content);
-//        questions.setEditable(false);
-//        questions.setFont( new Font("TimesRoman",Font.PLAIN,25));
-//        JScrollPane TextJp = new JScrollPane(questions);
-//        TextJp.setBounds(50,290, 500,210);
-//        TextJp.setBorder(null);
-//        testDetailPanel.add(TextJp);
 
         // Query media files
         if (lists.size() == 0) {
-
+//            question.setBounds(70, 100, 460, 320);
         } else {
             mediaDisplay(testDetailPanel);
-//            pre.setBounds(400,245,50,50);
-//            next.setBounds(460,245,50,50);
-//            imgPanel.setBounds(100,40,400,220);
-//            mp.setBounds(100,40,400,220);
             for (String s : lists) {
                 File file = new File(s);
                 fileList.add(file);

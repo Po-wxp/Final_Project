@@ -19,7 +19,7 @@ public class Controller implements ActionListener, MouseListener {
     private ArrayList<String> questionList;
     private int index = 0;
     private ArrayList<TestPage> testPageList;
-    private int pageNum;
+    private int pageNum, testNum;
     private boolean show_isSelected, add_isSelected, is_client, is_showDetailed;
 
     public Controller(Model model) {
@@ -35,6 +35,7 @@ public class Controller implements ActionListener, MouseListener {
         is_client = false;
         // If the table is be clicked to show detail
         is_showDetailed = false;
+        testNum = 0;
     }
 
     @Override
@@ -135,14 +136,17 @@ public class Controller implements ActionListener, MouseListener {
         }
 
         if (e.getSource() == view.save) {
-            if(testPageList.size() == 0){
+            if(testPageList.size() == 0 && view.question.getText().equals("")){
                 JOptionPane.showMessageDialog(null, "Please input at least one question", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            ArrayList<File> newFiles = model.copyFile(testPageList);
-            saveData(newFiles);
+            if(!view.question.getText().equals("")){
+                storeTestPage();
+            }
+            saveData();
             nextPageInitialize();
             initialize();
+            JOptionPane.showConfirmDialog(null, "Thank you for uploading the test", "Completed", JOptionPane.DEFAULT_OPTION);
         }
 
         if (e.getSource() == view.showList) {
@@ -170,25 +174,44 @@ public class Controller implements ActionListener, MouseListener {
                 }
             }
         }
+
+        if(e.getSource() == view.backToList) {
+            model.changePanel(view.psyPanel, view.testDetailPanel, view.showTestsPanel);
+            is_showDetailed = false;
+            filesList = new ArrayList();
+            view.fileList = new ArrayList();
+            pageNum = 1;
+        }
+
+        if(e.getSource() == view.showNextPage) {
+            pageNum ++;
+            model.changePanel(view.psyPanel, view.testDetailPanel, view.testDetailPanel(testNum,pageNum));
+        }
+
+        if(e.getSource() == view.showPrePage) {
+            pageNum --;
+            model.changePanel(view.psyPanel, view.testDetailPanel, view.testDetailPanel(testNum,pageNum));
+        }
     }
 
-    public void saveData(ArrayList<File> newFiles) {
-        ArrayList<String> questions = new ArrayList();
-        ArrayList<String> urls = new ArrayList();
-        for(TestPage page : testPageList){
-            for(String question : page.getQuestions()){
-                questions.add(question);
-            }
-        }
-
-        for(File f : newFiles) {
-            urls.add(f.getAbsolutePath());
-        }
-
+    public void saveData() {
         DatabaseAgent database = new DatabaseAgent();
         database.connect();
         int TID = database.getMaxTID() + 1;
-        database.upload(TID, pageNum, urls, questions);
+        for (int i = 1; i <= testPageList.size(); i++) {
+
+            ArrayList<String> questions = new ArrayList();
+            ArrayList<String> urls = new ArrayList();
+            ArrayList<File> newFiles = model.copyFile(testPageList);
+            for(String question : testPageList.get(i-1).getQuestions()){
+                questions.add(question);
+            }
+
+            for(File f : newFiles) {
+                urls.add(f.getAbsolutePath());
+            }
+            database.upload(TID, i, urls, questions);
+        }
         database.close();
     }
 
@@ -251,11 +274,12 @@ public class Controller implements ActionListener, MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        testNum = view.testsTable.getSelectedRow()+1;
         if(is_client){
-            model.changePanel(view.clientPanel, view.showTestsPanel, view.doTestPanel(view.testsTable.getSelectedRow()+1));
+            model.changePanel(view.clientPanel, view.showTestsPanel, view.doTestPanel(testNum));
         }else{
             is_showDetailed = true;
-            model.changePanel(view.psyPanel, view.showTestsPanel, view.testDetailPanel(view.testsTable.getSelectedRow()+1,1));
+            model.changePanel(view.psyPanel, view.showTestsPanel, view.testDetailPanel(testNum,1));
             filesList = view.fileList;
             showPanel();
             if(filesList.size() > 1){
