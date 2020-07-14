@@ -20,7 +20,7 @@ import java.util.ArrayList;
 public class View extends JFrame {
     private Controller controller;
     protected JButton psy, client, add, showList, back, back2, addFiles, save, pre, next, nextTest,
-            addQuestion, removeQuestion, edit, showNextPage, showPrePage,backToList;
+            addQuestion, removeQuestion, edit, showNextPage, showPrePage,backToList, finish, submit;
     protected JTextArea question;
     protected JFileChooser fc;
     protected JLabel identity, showURL, uploadNum;
@@ -35,6 +35,7 @@ public class View extends JFrame {
     private Font f1, f2;
     private JScrollPane TextJp;
     private ArrayList<String> questionsList, lists;
+    protected JToggleButton[] stars;
 
     public View(Controller controller) {
         initialize();
@@ -453,6 +454,46 @@ public class View extends JFrame {
         return doTestPanel;
     }
 
+    public JPanel thanksPanel(){
+        JPanel thanksPanel = new JPanel(null);
+        thanksPanel.setBackground(Color.white);
+
+        ImageIcon inactivateIcon = new ImageIcon("static/inactivate.png");
+        ImageIcon activateIcon = new ImageIcon("static/activate.png");
+
+        // Thank Label
+        JLabel thanksLabel = new JLabel("Thanks for filling in the questionnaire！");
+        thanksLabel.setFont(new Font("TimesRoman", Font.PLAIN, 27));
+        thanksLabel.setBounds(80,130, 470,50);
+        thanksPanel.add(thanksLabel);
+
+        // Please Label
+        JLabel pleaseLabel = new JLabel("Please give a mark for this test 😊");
+        pleaseLabel.setFont(f1);
+        pleaseLabel.setBounds(120,220, 400,50);
+        thanksPanel.add(pleaseLabel);
+
+        // Mark Button
+        for (int i = 0; i < 5; i++) {
+            JToggleButton star = stars[i] = new JToggleButton();
+            star.setIcon(inactivateIcon);
+            star.setSelectedIcon(activateIcon);
+            star.setBounds(140 + i * 70,300,40,40);
+            star.setFocusPainted(false);
+            star.setBorderPainted(false);
+            star.addActionListener(controller);
+            star.setContentAreaFilled(false);
+            thanksPanel.add(star);
+        }
+
+        // Submit button
+        submit = new JButton("Submit");
+        buttonDefault(submit, null, new Color(41, 189, 226));
+        submit.setBounds(450, 500, 100, 30);
+        thanksPanel.add(submit);
+
+        return thanksPanel;
+    }
 
     public JPanel testDetailPanel(int TID, int TPID) {
         testDetailPanel = new JPanel(null);
@@ -502,8 +543,16 @@ public class View extends JFrame {
         showNextPage.setBounds(450, 500, 100, 30);
         panel.add(showNextPage);
         if(TPID >= maxPageID) {
-            showNextPage.setEnabled(false);
-            showNextPage.setText("Final Page");
+            if(controller.is_client){
+                showNextPage.setVisible(false);
+                finish = new JButton("Finish");
+                buttonDefault(finish, null, new Color(41, 189, 226));
+                finish.setBounds(450, 500, 100, 30);
+                panel.add(finish);
+            }else {
+                showNextPage.setEnabled(false);
+                showNextPage.setText("Final Page");
+            }
         }
 
         // Pre Page Button
@@ -539,6 +588,7 @@ public class View extends JFrame {
         lists = new ArrayList();
         uploadNum = new JLabel("");
         showURL = new JLabel("");
+        stars = new JToggleButton[5];
     }
 
     public void buttonDefault(JButton btn, Font f, Color color) {

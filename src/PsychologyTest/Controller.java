@@ -19,10 +19,11 @@ public class Controller implements ActionListener, MouseListener {
     private Model model;
     private ArrayList<File> filesList;
     private ArrayList<String> questionList;
-    private int index = 0;
+    private int index;
     private ArrayList<TestPage> testPageList;
     private int pageNum, testNum;
-    private boolean show_isSelected, add_isSelected, is_client, is_showDetailed;
+    private boolean show_isSelected, add_isSelected, is_showDetailed;
+    protected boolean is_client;
 
     public Controller(Model model) {
         this.model = model;
@@ -38,6 +39,7 @@ public class Controller implements ActionListener, MouseListener {
         // If the table is be clicked to show detail
         is_showDetailed = false;
         testNum = 0;
+        index = 0;
     }
 
     @Override
@@ -199,6 +201,7 @@ public class Controller implements ActionListener, MouseListener {
             filesList = new ArrayList();
             view.fileList = new ArrayList();
             pageNum = 1;
+            index = 0;
         }
 
         if(e.getSource() == view.showNextPage) {
@@ -209,6 +212,21 @@ public class Controller implements ActionListener, MouseListener {
         if(e.getSource() == view.showPrePage) {
             pageNum --;
             model.changePanel(view.psyPanel, view.testDetailPanel, view.testDetailPanel(testNum,pageNum));
+        }
+
+        if(e.getSource() == view.finish) {
+            model.changePanel(view.clientPanel, view.doTestPanel, view.thanksPanel());
+        }
+
+        for (int i = 0; i < view.stars.length; i++) {
+            if(e.getSource() == view.stars[i]){
+                for (int k = i+1; k < view.stars.length; k++) {
+                    view.stars[k].setSelected(false);
+                }
+                for (int j = 0; j <= i; j++) {
+                    view.stars[j].setSelected(true);
+                }
+            }
         }
     }
 
