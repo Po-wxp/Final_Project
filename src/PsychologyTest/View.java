@@ -1,11 +1,13 @@
 package PsychologyTest;
 
 import MediaPlayer.MediaPlayer;
+import ScrollBar.Bar;
 import com.sun.jna.NativeLibrary;
 import database.DatabaseAgent;
 import uk.co.caprica.vlcj.runtime.RuntimeUtil;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -32,6 +34,7 @@ public class View extends JFrame {
     private DatabaseAgent database;
     private Font f1, f2;
     private JScrollPane TextJp;
+    private ArrayList<String> questionsList, lists;
 
     public View(Controller controller) {
         initialize();
@@ -209,9 +212,12 @@ public class View extends JFrame {
         // Use JScrollPane to hold JTextArea in order to view more info
         TextJp = new JScrollPane(question);
         TextJp.setBounds(70, 350, 500, 100);
-        TextJp.setBorder(null);
+        question.setBorder(null);
+        TextJp.getVerticalScrollBar().setUI(new Bar());
         if (!has_border) {
-            question.setBorder(null);
+            TextJp.setBorder(null);
+        }else{
+            TextJp.setBorder(BorderFactory.createLineBorder(Color.black));
         }
         panel.add(TextJp);
     }
@@ -364,24 +370,94 @@ public class View extends JFrame {
         return clientPanel;
     }
 
-    public JPanel doTestPanel(int index) {
+    public JPanel doTestPanel(int TID, int TPID) {
         doTestPanel = new JPanel(null);
-        doTestPanel.setBackground(Color.white);
+        // Add components
+        detailCommonPart(doTestPanel, TID, TPID);
 
+        JPanel answerPanel = new JPanel(new GridLayout(0,1));
+        answerPanel.setBackground(Color.white);
+
+        TextJp = new JScrollPane(answerPanel);
+        TextJp.setBounds(-20, 340, 630, 150);
+        TextJp.setBorder(null);
+        TextJp.getVerticalScrollBar().setUI(new Bar());
+
+        doTestPanel.add(TextJp);
+        setLocation(doTestPanel);
+
+        if(lists.size() == 0){
+            int height = (questionsList.size()+1) * 50;
+            TextJp.setBounds(-20, 100, 630, height);
+        }else {
+            if (questionsList.size() <= 4){
+                int height = ((questionsList.size()+1) * 35) ;
+                System.out.println(height);
+                TextJp.setBounds(-20, 340, 630, height);
+            }
+        }
+
+        for (int i = 0; i <= questionsList.size(); i++) {
+            // The Question rows -> set height
+            int max_rows = 1;
+            JPanel each = new JPanel(new BorderLayout());
+            JPanel left = new JPanel();
+            JPanel right = new JPanel(new GridLayout(1,5));
+            right.setPreferredSize(new Dimension(455,30));
+
+            each.setBackground(Color.white);
+            left.setBackground(Color.white);
+            right.setBackground(Color.white);
+
+            // Likert Scale
+            if(i == 0){
+                left.setBackground(Color.white);
+                String[] scale = {"Strongly disagree", "Disagree", "Neural", "Agree", "Strongly agree"};
+                for(String s : scale) {
+                    JLabel label = new JLabel(s, SwingConstants.CENTER);
+                    right.add(label);
+                }
+            }else{ // Questions
+                String s = questionsList.get(i-1);
+                JTextArea question = new JTextArea();
+                if(s.length() <= 20){
+                    question.setText(s);
+                }else{
+                    String temp = "";
+                    while(s.length()>20) {
+                        max_rows ++;
+                        temp += s.substring(0,20) + "\n";
+                        s = s.substring(20);
+                    }
+                    temp += s;
+                    question.setText(temp);
+                }
+                left.add(question);
+                ButtonGroup group = new ButtonGroup();
+                for (int j = 0; j < 5; j++) {
+                    JPanel buttonPanel = new JPanel();
+                    buttonPanel.setBackground(Color.white);
+                    JRadioButton radioButton = new JRadioButton();
+                    radioButton.setBackground(Color.white);
+                    group.add(radioButton);
+                    buttonPanel.add(radioButton);
+                    right.add(buttonPanel);
+                }
+            }
+            left.setPreferredSize(new Dimension(160,30 + 5*(max_rows)));
+            each.add(left, BorderLayout.WEST);
+            each.add(right, BorderLayout.CENTER);
+            answerPanel.add(each);
+        }
 
         return doTestPanel;
     }
 
+
     public JPanel testDetailPanel(int TID, int TPID) {
         testDetailPanel = new JPanel(null);
-        testDetailPanel.setBackground(Color.white);
-
-        // Database Query
-        database.connect();
-        ArrayList<String> questionsList = database.getPageMediaList(TID, TPID, "QUESTIONS");
-        ArrayList<String> lists = database.getPageMediaList(TID, TPID, "MEDIAS");
-        int maxPageID = database.getMaxPageID(TID);
-        database.close();
+        // Add components
+        detailCommonPart(testDetailPanel, TID, TPID);
 
         // Edit Button
         edit = new JButton("Edit");
@@ -389,18 +465,42 @@ public class View extends JFrame {
         edit.setBounds(30, 30, 100, 30);
         testDetailPanel.add(edit);
 
+        // Query questions for specific page
+        String content = "";
+        for (int i = 1; i <= questionsList.size(); i++) {
+            content += "Q" + i + ": " + questionsList.get(i - 1) + "\n";
+        }
+        // Display TextArea
+        textAreaDisplay(testDetailPanel, false);
+        question.setText(content);
+        // Ensure the text are location
+        setLocation(testDetailPanel);
+
+        return testDetailPanel;
+    }
+
+    public void detailCommonPart(JPanel panel, int TID, int TPID) {
+        panel.setBackground(Color.white);
+
+        // Database Query
+        database.connect();
+        questionsList = database.getPageMediaList(TID, TPID, "QUESTIONS");
+        lists = database.getPageMediaList(TID, TPID, "MEDIAS");
+        int maxPageID = database.getMaxPageID(TID);
+        database.close();
+
         // Back Button
         ImageIcon backIcon = new ImageIcon("static/back.png");
         backToList = new JButton(backIcon);
         buttonDefault(backToList,null,null);
         backToList.setBounds(500,50,40,40);
-        testDetailPanel.add(backToList);
+        panel.add(backToList);
 
         // Next Page Button
         showNextPage = new JButton("Next Page");
         buttonDefault(showNextPage, null, new Color(41, 189, 226));
         showNextPage.setBounds(450, 500, 100, 30);
-        testDetailPanel.add(showNextPage);
+        panel.add(showNextPage);
         if(TPID >= maxPageID) {
             showNextPage.setEnabled(false);
             showNextPage.setText("Final Page");
@@ -410,34 +510,23 @@ public class View extends JFrame {
         showPrePage = new JButton("Pre Page");
         buttonDefault(showPrePage, null, new Color(41, 189, 226));
         showPrePage.setBounds(310, 500, 100, 30);
-        testDetailPanel.add(showPrePage);
+        panel.add(showPrePage);
         if(TPID == 1) {
-            showPrePage.setEnabled(false);
-            showPrePage.setText("First Page");
+            showPrePage.setVisible(false);
         }
-
-        // Query questions for specific page
-        String content = "";
-        for (int i = 1; i <= questionsList.size(); i++) {
-            content += "Q" + i + ": " + questionsList.get(i - 1) + "\n";
-        }
-
-        // Display TextArea
-        textAreaDisplay(testDetailPanel, false);
-        question.setText(content);
-
+    }
+    // If no media, set text area in the middle of the panel
+    public void setLocation(JPanel panel) {
         // Query media files
         if (lists.size() == 0) {
             TextJp.setBounds(70, 100, 460, 320);
         } else {
-            mediaDisplay(testDetailPanel);
+            mediaDisplay(panel);
             for (String s : lists) {
                 File file = new File(s);
                 fileList.add(file);
             }
         }
-
-        return testDetailPanel;
     }
 
     public void initialize() {
@@ -446,6 +535,10 @@ public class View extends JFrame {
         fileList = new ArrayList();
         f1 = new Font("TimesRoman", Font.PLAIN, 25);
         f2 = new Font("TimesRoman", Font.PLAIN, 18);
+        questionsList = new ArrayList();
+        lists = new ArrayList();
+        uploadNum = new JLabel("");
+        showURL = new JLabel("");
     }
 
     public void buttonDefault(JButton btn, Font f, Color color) {

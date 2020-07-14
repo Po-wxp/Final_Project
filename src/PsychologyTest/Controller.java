@@ -52,10 +52,10 @@ public class Controller implements ActionListener, MouseListener {
         }
 
         if (e.getSource() == view.addFiles){
-            view.emptyPanel.setVisible(false);
             int interval = view.fc.showDialog(view,"Add Files");
             if(interval == view.fc.APPROVE_OPTION){
-               File[] files = view.fc.getSelectedFiles();
+                view.emptyPanel.setVisible(false);
+                File[] files = view.fc.getSelectedFiles();
                 view.next.setVisible(true);
                for(File f : files){
                    filesList.add(f);
@@ -119,6 +119,7 @@ public class Controller implements ActionListener, MouseListener {
             if(selectedValue != null){
                 questionList.remove((int) selectedValue - 1);
                 showQuestions();
+                view.question.append("\n");
                 if(questionList.size() == 0){
                     view.removeQuestion.setVisible(false);
                 }
@@ -189,7 +190,11 @@ public class Controller implements ActionListener, MouseListener {
         }
 
         if(e.getSource() == view.backToList) {
-            model.changePanel(view.psyPanel, view.testDetailPanel, view.showTestsPanel);
+            if (!is_client){
+                model.changePanel(view.psyPanel, view.testDetailPanel, view.showTestsPanel);
+            }else{
+                model.changePanel(view.clientPanel, view.doTestPanel, view.showTestsPanel);
+            }
             is_showDetailed = false;
             filesList = new ArrayList();
             view.fileList = new ArrayList();
@@ -287,21 +292,25 @@ public class Controller implements ActionListener, MouseListener {
         is_client = false;
     }
 
+    public void showDetail(JPanel p1, JPanel p2, JPanel p3){
+        is_showDetailed = true;
+        model.changePanel(p1, p2, p3);
+        filesList = view.fileList;
+        if(filesList.size() != 0){
+            showPanel();
+        }
+        if(filesList.size() > 1){
+            view.next.setVisible(true);
+        }
+    }
+
     @Override
     public void mouseClicked(MouseEvent e) {
         testNum = view.testsTable.getSelectedRow()+1;
         if(is_client){
-            model.changePanel(view.clientPanel, view.showTestsPanel, view.doTestPanel(testNum));
+            showDetail(view.clientPanel, view.showTestsPanel, view.doTestPanel(testNum,1));
         }else{
-            is_showDetailed = true;
-            model.changePanel(view.psyPanel, view.showTestsPanel, view.testDetailPanel(testNum,1));
-            filesList = view.fileList;
-            if(filesList.size() != 0){
-                showPanel();
-            }
-            if(filesList.size() > 1){
-                view.next.setVisible(true);
-            }
+            showDetail(view.psyPanel, view.showTestsPanel, view.testDetailPanel(testNum,1));
         }
     }
 
