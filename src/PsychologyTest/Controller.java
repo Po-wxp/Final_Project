@@ -9,7 +9,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 
 public class Controller implements ActionListener, MouseListener {
@@ -143,10 +145,21 @@ public class Controller implements ActionListener, MouseListener {
             if(!view.question.getText().equals("")){
                 storeTestPage();
             }
-            saveData();
+            // Get the publisher name
+            String name = JOptionPane.showInputDialog("Thank you for uploading, please input your name: ");
+            if(name == null || name.equals("")){
+                name = "Anonymous";
+            }
+
+            // Get current date
+            Date date = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String formatDate = sdf.format(date);
+
+            saveData(name, formatDate);
             nextPageInitialize();
             initialize();
-            JOptionPane.showConfirmDialog(null, "Thank you for uploading the test", "Completed", JOptionPane.DEFAULT_OPTION);
+//            JOptionPane.showConfirmDialog(null, "Thank you for uploading the test", "Completed", JOptionPane.DEFAULT_OPTION);
         }
 
         if (e.getSource() == view.showList) {
@@ -194,7 +207,7 @@ public class Controller implements ActionListener, MouseListener {
         }
     }
 
-    public void saveData() {
+    public void saveData(String name, String date) {
         DatabaseAgent database = new DatabaseAgent();
         database.connect();
         int TID = database.getMaxTID() + 1;
@@ -210,7 +223,7 @@ public class Controller implements ActionListener, MouseListener {
             for(File f : newFiles) {
                 urls.add(f.getAbsolutePath());
             }
-            database.upload(TID, i, urls, questions);
+            database.upload(TID, i, urls, questions, name, date);
         }
         database.close();
     }

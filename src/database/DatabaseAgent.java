@@ -22,7 +22,10 @@ public class DatabaseAgent {
     public void createTable() {
         try {
             Statement statement = c.createStatement();
-            String sqlStr = "Create Table TESTS(TID INT NOT NULL,TPID INT NOT NULL,MEDIAS TEXT, QUESTIONS TEXT, PRIMARY KEY(TID,TPID))";
+            String sqlStr = "CREATE TABLE TESTS(TID INT NOT NULL,TPID INT NOT NULL,MEDIAS TEXT, QUESTIONS TEXT NOT NULL)";
+            statement.executeUpdate(sqlStr);
+
+            sqlStr = "CREATE TABLE TEST_DETAIL(TID INT NOT NULL,PUBLISHER VARCHAR(20), DATE VARCHAR(20), STARS VARCHAR(5), PRIMARY KEY(TID))";
             statement.executeUpdate(sqlStr);
             System.out.println("Create table successfully");
             statement.close();
@@ -32,7 +35,7 @@ public class DatabaseAgent {
         }
     }
 
-    public void upload(int TID, int TPID, ArrayList<String> mediaUrls, ArrayList<String> questions) {
+    public void upload(int TID, int TPID, ArrayList<String> mediaUrls, ArrayList<String> questions,String name, String date) {
         String urls = "";
         String question = "";
         for (int i = 0; i < mediaUrls.size(); i++) {
@@ -55,6 +58,13 @@ public class DatabaseAgent {
             statement.setInt(2, TPID);
             statement.setString(3, urls);
             statement.setString(4, question);
+            statement.executeUpdate();
+
+            statement = c.prepareStatement("INSERT INTO TEST_DETAIL VALUES (?,?,?,?)");
+            statement.setInt(1, TID);
+            statement.setString(2, name);
+            statement.setString(3, date);
+            statement.setString(4, "");
             statement.executeUpdate();
             System.out.println("Insert data successfully");
             statement.close();
@@ -150,6 +160,23 @@ public class DatabaseAgent {
         }
 
         return filesUrl;
+    }
+
+    public String getTestDetail(int TID, String attr) {
+        String output = "";
+        try {
+            PreparedStatement statement = c.prepareStatement("SELECT "+ attr +" AS M FROM TEST_DETAIL WHERE TID=?");
+            statement.setInt(1, TID);
+            result = statement.executeQuery();
+            while(result.next()){
+                output = result.getString("M");
+            }
+            System.out.println("Get detail successfully");
+            statement.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return output;
     }
 
 }

@@ -266,6 +266,9 @@ public class View extends JFrame {
             tests[i][0] = "" + (i + 1);
             tests[i][1] = database.getAttr(i + 1, "MEDIAS").size() + "";
             tests[i][2] = database.getAttr(i + 1, "QUESTIONS").size() + "";
+            tests[i][3] = database.getTestDetail(i + 1, "PUBLISHER");
+            tests[i][4] = database.getTestDetail(i + 1, "DATE");
+            tests[i][5] = database.getTestDetail(i + 1, "STARS");
         }
         database.close();
         // Cannot be modified
