@@ -34,7 +34,7 @@ public class View extends JFrame {
     private DatabaseAgent database;
     private Font f1, f2;
     private JScrollPane TextJp;
-    private ArrayList<String> questionsList, lists;
+    protected ArrayList<String> questionsList, lists;
     protected JToggleButton[] stars;
     protected ArrayList<ButtonGroup> pageBtnGroup;
     protected ArrayList<ArrayList<ButtonGroup>> totalBtnGroup;
@@ -217,6 +217,7 @@ public class View extends JFrame {
         TextJp.setBounds(70, 350, 500, 100);
         question.setBorder(null);
         TextJp.getVerticalScrollBar().setUI(new Bar());
+        TextJp.getHorizontalScrollBar().setUI(new Bar());
         if (!has_border) {
             TextJp.setBorder(null);
         }else{
@@ -382,7 +383,7 @@ public class View extends JFrame {
         answerPanel.setBackground(Color.white);
 
         TextJp = new JScrollPane(answerPanel);
-        TextJp.setBounds(-20, 340, 630, 150);
+        TextJp.setBounds(20, 340, 580, 150);
         TextJp.setBorder(null);
         TextJp.getVerticalScrollBar().setUI(new Bar());
 
@@ -391,24 +392,17 @@ public class View extends JFrame {
 
         if(lists.size() == 0){
             int height = (questionsList.size()+1) * 50;
-            TextJp.setBounds(-20, 100, 630, height);
-        }else {
-            if (questionsList.size() <= 4){
-                int height = ((questionsList.size()+1) * 35) ;
-                TextJp.setBounds(-20, 340, 630, height);
-            }
+            TextJp.setBounds(20, 100, 580, height);
         }
 
         for (int i = 0; i <= questionsList.size(); i++) {
             // The Question rows -> set height
             int max_rows = 1;
             JPanel each = new JPanel(new BorderLayout());
-            JPanel left = new JPanel();
+            JPanel left = new JPanel(new BorderLayout());
             JPanel right = new JPanel(new GridLayout(1,5));
-            right.setPreferredSize(new Dimension(455,30));
 
             each.setBackground(Color.white);
-            left.setBackground(Color.white);
             right.setBackground(Color.white);
 
             // Likert Scale
@@ -421,19 +415,10 @@ public class View extends JFrame {
                 }
             }else{ // Questions
                 String s = questionsList.get(i-1);
-                JTextArea question = new JTextArea();
-                if(s.length() <= 20){
-                    question.setText(s);
-                }else{
-                    String temp = "";
-                    while(s.length()>20) {
-                        max_rows ++;
-                        temp += s.substring(0,20) + "\n";
-                        s = s.substring(20);
-                    }
-                    temp += s;
-                    question.setText(temp);
-                }
+                JTextArea question = new JTextArea(s);
+                question.setEditable(false);
+                question.setLineWrap(true);
+                question.setWrapStyleWord(true);
                 left.add(question);
                 ButtonGroup group = new ButtonGroup();
                 for (int j = 0; j < 5; j++) {
@@ -448,7 +433,8 @@ public class View extends JFrame {
                 }
                 pageBtnGroup.add(group);
             }
-            left.setPreferredSize(new Dimension(160,30 + 5*(max_rows)));
+            left.setPreferredSize(new Dimension(180,30 + 20*(max_rows)));
+            right.setPreferredSize(new Dimension(385,30 + 20*(max_rows)));
             each.add(left, BorderLayout.WEST);
             each.add(right, BorderLayout.CENTER);
             answerPanel.add(each);

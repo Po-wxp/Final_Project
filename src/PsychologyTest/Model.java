@@ -25,18 +25,16 @@ public class Model {
     }
 
     // Copy upload files to the server
-    public ArrayList<File>  copyFile(ArrayList<TestPage> testPages){
+    public ArrayList<File>  copyFile(ArrayList<File> fileList){
         ArrayList<File> newFiles = new ArrayList();
-        if(testPages.size() != 0){
-            for (TestPage testPage : testPages){
-                for(File f : testPage.getFiles()){
-                    File newFile = new File("upload/",f.getName());
-                    try {
-                        Files.copy(f.toPath(),newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                        newFiles.add(newFile);
-                    } catch (IOException event) {
-                        event.printStackTrace();
-                    }
+        if(fileList.size() != 0){
+            for(File f : fileList){
+                File newFile = new File("upload/",f.getName());
+                try {
+                    Files.copy(f.toPath(),newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    newFiles.add(newFile);
+                } catch (IOException event) {
+                    event.printStackTrace();
                 }
             }
         }

@@ -72,6 +72,9 @@ public class Controller implements ActionListener, MouseListener {
 
         if (e.getSource() == view.pre) {
             index--;
+            if(view.mp.getMediaPlayer().isPlaying()){
+                view.mp.getMediaPlayer().pause();
+            }
             showPanel();
             if (index < filesList.size() - 1) {
                 view.next.setVisible(true);
@@ -80,6 +83,9 @@ public class Controller implements ActionListener, MouseListener {
 
         if (e.getSource() == view.next) {
             index++;
+            if(view.mp.getMediaPlayer().isPlaying()){
+                view.mp.getMediaPlayer().pause();
+            }
             showPanel();
         }
 
@@ -212,6 +218,7 @@ public class Controller implements ActionListener, MouseListener {
 
         if (e.getSource() == view.showNextPage) {
             pageNum++;
+            index = 0;
             if (is_client) {
                 ArrayList<String> pageAnswer = new ArrayList();
                 for (int i = 0; i < view.totalBtnGroup.get(pageNum - 2).size(); i++) {
@@ -224,9 +231,9 @@ public class Controller implements ActionListener, MouseListener {
                     }
                 }
                 answerList.add(pageAnswer);
-                model.changePanel(view.clientPanel, view.doTestPanel, view.doTestPanel(testNum, pageNum));
+                showDetail(view.clientPanel, view.doTestPanel, view.doTestPanel(testNum, pageNum));
             } else {
-                model.changePanel(view.psyPanel, view.testDetailPanel, view.testDetailPanel(testNum, pageNum));
+                showDetail(view.psyPanel, view.testDetailPanel, view.testDetailPanel(testNum, pageNum));
             }
         }
 
@@ -273,15 +280,16 @@ public class Controller implements ActionListener, MouseListener {
 
         if (e.getSource() == view.showPrePage) {
             pageNum--;
+            index = 0;
             if (is_client) {
                 // Remove btn group
                 view.totalBtnGroup.remove(view.totalBtnGroup.size() - 1);
                 view.totalBtnGroup.remove(view.totalBtnGroup.size() - 1);
                 answerList.remove(answerList.size() - 1);
 
-                model.changePanel(view.clientPanel, view.doTestPanel, view.doTestPanel(testNum, pageNum));
+                showDetail(view.clientPanel, view.doTestPanel, view.doTestPanel(testNum, pageNum));
             } else {
-                model.changePanel(view.psyPanel, view.testDetailPanel, view.testDetailPanel(testNum, pageNum));
+                showDetail(view.psyPanel, view.testDetailPanel, view.testDetailPanel(testNum, pageNum));
             }
         }
 
@@ -302,15 +310,25 @@ public class Controller implements ActionListener, MouseListener {
         }
     }
 
+//    public void loadFile(){
+//        if(view.lists.size() != 0){
+//            filesList = new ArrayList();
+//            for (int i = 0; i < view.lists.size(); i++) {
+//                File f = new File(view.lists.get(i));
+//                filesList.add(f);
+//            }
+//            showPanel();
+//        }
+//    }
+
     public void saveData(String name, String date) {
         DatabaseAgent database = new DatabaseAgent();
         database.connect();
         int TID = database.getMaxTID() + 1;
         for (int i = 1; i <= testPageList.size(); i++) {
-
             ArrayList<String> questions = new ArrayList();
             ArrayList<String> urls = new ArrayList();
-            ArrayList<File> newFiles = model.copyFile(testPageList);
+            ArrayList<File> newFiles = model.copyFile(testPageList.get(i-1).getFiles());
             for (String question : testPageList.get(i - 1).getQuestions()) {
                 questions.add(question);
             }
@@ -387,6 +405,7 @@ public class Controller implements ActionListener, MouseListener {
         is_showDetailed = true;
         model.changePanel(p1, p2, p3);
         filesList = view.fileList;
+        view.fileList = new ArrayList();
         if (filesList.size() != 0) {
             showPanel();
         }
