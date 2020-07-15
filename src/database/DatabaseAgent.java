@@ -25,7 +25,7 @@ public class DatabaseAgent {
             String sqlStr = "CREATE TABLE TESTS(TID INT NOT NULL,TPID INT NOT NULL,MEDIAS TEXT, QUESTIONS TEXT NOT NULL)";
             statement.executeUpdate(sqlStr);
 
-            sqlStr = "CREATE TABLE TEST_DETAIL(TID INT NOT NULL,PUBLISHER VARCHAR(20), DATE VARCHAR(20), STARS VARCHAR(5), PRIMARY KEY(TID))";
+            sqlStr = "CREATE TABLE TEST_DETAIL(TID INT NOT NULL,PUBLISHER VARCHAR(20), DATE VARCHAR(20), ANSWER TEXT, STARS TEXT, PRIMARY KEY(TID))";
             statement.executeUpdate(sqlStr);
             System.out.println("Create table successfully");
             statement.close();
@@ -35,7 +35,7 @@ public class DatabaseAgent {
         }
     }
 
-    public void upload(int TID, int TPID, ArrayList<String> mediaUrls, ArrayList<String> questions,String name, String date) {
+    public void upload(int TID, int TPID, ArrayList<String> mediaUrls, ArrayList<String> questions,String name, String date,int time) {
         String urls = "";
         String question = "";
         for (int i = 0; i < mediaUrls.size(); i++) {
@@ -60,12 +60,15 @@ public class DatabaseAgent {
             statement.setString(4, question);
             statement.executeUpdate();
 
-            statement = c.prepareStatement("INSERT INTO TEST_DETAIL VALUES (?,?,?,?)");
-            statement.setInt(1, TID);
-            statement.setString(2, name);
-            statement.setString(3, date);
-            statement.setString(4, "");
-            statement.executeUpdate();
+            if(time == 1){
+                statement = c.prepareStatement("INSERT INTO TEST_DETAIL VALUES (?,?,?,?,?)");
+                statement.setInt(1, TID);
+                statement.setString(2, name);
+                statement.setString(3, date);
+                statement.setString(4, "");
+                statement.setString(5, "");
+                statement.executeUpdate();
+            }
             System.out.println("Insert data successfully");
             statement.close();
 //            c.close();
@@ -177,6 +180,20 @@ public class DatabaseAgent {
             e.printStackTrace();
         }
         return output;
+    }
+
+    public void uploadAnswer(int TID, String answer, String mark){
+        try {
+            PreparedStatement statement = c.prepareStatement("UPDATE TEST_DETAIL SET ANSWER=?, STARS=? WHERE TID=?");
+            statement.setString(1, answer);
+            statement.setString(2, mark);
+            statement.setInt(3, TID);
+            statement.executeUpdate();
+            System.out.println("update data successfully");
+            statement.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

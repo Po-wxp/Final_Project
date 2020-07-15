@@ -26,7 +26,7 @@ public class View extends JFrame {
     protected JLabel identity, showURL, uploadNum;
     protected JPanel index;
     protected Color blue;
-    protected JPanel psyPanel, addTestPanel, showTestsPanel, emptyPanel, clientPanel, doTestPanel, testDetailPanel;
+    protected JPanel psyPanel, addTestPanel, showTestsPanel, emptyPanel, clientPanel, doTestPanel, testDetailPanel, thanksPanel;
     protected imgPanel imgPanel;
     protected MediaPlayer mp;
     protected JTable testsTable;
@@ -36,6 +36,8 @@ public class View extends JFrame {
     private JScrollPane TextJp;
     private ArrayList<String> questionsList, lists;
     protected JToggleButton[] stars;
+    protected ArrayList<ButtonGroup> pageBtnGroup;
+    protected ArrayList<ArrayList<ButtonGroup>> totalBtnGroup;
 
     public View(Controller controller) {
         initialize();
@@ -393,7 +395,6 @@ public class View extends JFrame {
         }else {
             if (questionsList.size() <= 4){
                 int height = ((questionsList.size()+1) * 35) ;
-                System.out.println(height);
                 TextJp.setBounds(-20, 340, 630, height);
             }
         }
@@ -439,23 +440,28 @@ public class View extends JFrame {
                     JPanel buttonPanel = new JPanel();
                     buttonPanel.setBackground(Color.white);
                     JRadioButton radioButton = new JRadioButton();
+                    radioButton.setActionCommand((j+1)+"");
                     radioButton.setBackground(Color.white);
                     group.add(radioButton);
                     buttonPanel.add(radioButton);
                     right.add(buttonPanel);
                 }
+                pageBtnGroup.add(group);
             }
             left.setPreferredSize(new Dimension(160,30 + 5*(max_rows)));
             each.add(left, BorderLayout.WEST);
             each.add(right, BorderLayout.CENTER);
             answerPanel.add(each);
         }
+        totalBtnGroup.add(pageBtnGroup);
+        // Reset pageBtnGroup
+        pageBtnGroup = new ArrayList();
 
         return doTestPanel;
     }
 
     public JPanel thanksPanel(){
-        JPanel thanksPanel = new JPanel(null);
+        thanksPanel = new JPanel(null);
         thanksPanel.setBackground(Color.white);
 
         ImageIcon inactivateIcon = new ImageIcon("static/inactivate.png");
@@ -589,6 +595,8 @@ public class View extends JFrame {
         uploadNum = new JLabel("");
         showURL = new JLabel("");
         stars = new JToggleButton[5];
+        pageBtnGroup = new ArrayList();
+        totalBtnGroup = new ArrayList();
     }
 
     public void buttonDefault(JButton btn, Font f, Color color) {

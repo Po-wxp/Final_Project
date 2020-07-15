@@ -24,6 +24,8 @@ public class Controller implements ActionListener, MouseListener {
     private int pageNum, testNum;
     private boolean show_isSelected, add_isSelected, is_showDetailed;
     protected boolean is_client;
+    private ArrayList<ArrayList<String>> answerList;
+    private int mark;
 
     public Controller(Model model) {
         this.model = model;
@@ -32,6 +34,7 @@ public class Controller implements ActionListener, MouseListener {
         filesList = new ArrayList();
         questionList = new ArrayList();
         testPageList = new ArrayList();
+        answerList = new ArrayList();
         pageNum = 1;
         show_isSelected = false;
         add_isSelected = true;
@@ -40,6 +43,7 @@ public class Controller implements ActionListener, MouseListener {
         is_showDetailed = false;
         testNum = 0;
         index = 0;
+        mark = 0;
     }
 
     @Override
@@ -53,33 +57,33 @@ public class Controller implements ActionListener, MouseListener {
             is_client = true;
         }
 
-        if (e.getSource() == view.addFiles){
-            int interval = view.fc.showDialog(view,"Add Files");
-            if(interval == view.fc.APPROVE_OPTION){
+        if (e.getSource() == view.addFiles) {
+            int interval = view.fc.showDialog(view, "Add Files");
+            if (interval == view.fc.APPROVE_OPTION) {
                 view.emptyPanel.setVisible(false);
                 File[] files = view.fc.getSelectedFiles();
                 view.next.setVisible(true);
-               for(File f : files){
-                   filesList.add(f);
-               }
-               showPanel();
+                for (File f : files) {
+                    filesList.add(f);
+                }
+                showPanel();
             }
         }
 
-        if(e.getSource() == view.pre){
+        if (e.getSource() == view.pre) {
             index--;
             showPanel();
-            if(index < filesList.size() -1){
+            if (index < filesList.size() - 1) {
                 view.next.setVisible(true);
             }
         }
 
-        if(e.getSource() == view.next){
+        if (e.getSource() == view.next) {
             index++;
             showPanel();
         }
 
-        if(e.getSource() == view.back){
+        if (e.getSource() == view.back) {
             model.switchPanel(view, view.psyPanel, view.index);
             nextPageInitialize();
             initialize();
@@ -87,53 +91,54 @@ public class Controller implements ActionListener, MouseListener {
             add_isSelected = true;
         }
 
-        if(e.getSource() == view.back2){
+        if (e.getSource() == view.back2) {
             model.switchPanel(view, view.clientPanel, view.index);
+            initialize();
         }
 
-        if(index == 0 ){
+        if (index == 0) {
             view.pre.setVisible(false);
-        }else{
+        } else {
             view.pre.setVisible(true);
         }
 
-        if(index == filesList.size() -1 ){
+        if (index == filesList.size() - 1) {
             view.next.setVisible(false);
         }
 
-        if(e.getSource() == view.addQuestion){
-            String question= JOptionPane.showInputDialog("Please input the question: ");
-            if((question != null)){
+        if (e.getSource() == view.addQuestion) {
+            String question = JOptionPane.showInputDialog("Please input the question: ");
+            if ((question != null)) {
                 questionList.add(question);
-                view.question.append(questionList.lastIndexOf(question)+1 +". "+question+"\n");
+                view.question.append(questionList.lastIndexOf(question) + 1 + ". " + question + "\n");
                 view.removeQuestion.setVisible(true);
             }
         }
 
-        if(e.getSource() == view.removeQuestion){
+        if (e.getSource() == view.removeQuestion) {
             Object[] list = new Object[questionList.size()];
             for (int i = 0; i < questionList.size(); i++) {
-                list[i] = i+1;
+                list[i] = i + 1;
             }
             Object selectedValue = JOptionPane.showInputDialog(null, "Select the index", "Remove a question",
                     JOptionPane.INFORMATION_MESSAGE, null,
                     list, list[0]);
-            if(selectedValue != null){
+            if (selectedValue != null) {
                 questionList.remove((int) selectedValue - 1);
                 showQuestions();
                 view.question.append("\n");
-                if(questionList.size() == 0){
+                if (questionList.size() == 0) {
                     view.removeQuestion.setVisible(false);
                 }
             }
         }
 
-        if(e.getSource() == view.nextTest){
-            if(view.question.getText().equals("")){
+        if (e.getSource() == view.nextTest) {
+            if (view.question.getText().equals("")) {
                 JOptionPane.showMessageDialog(null, "Please input at least one question", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            pageNum ++;
+            pageNum++;
             storeTestPage();
             nextPageInitialize();
             view.addTestPanel.revalidate();
@@ -141,16 +146,16 @@ public class Controller implements ActionListener, MouseListener {
         }
 
         if (e.getSource() == view.save) {
-            if(testPageList.size() == 0 && view.question.getText().equals("")){
+            if (testPageList.size() == 0 && view.question.getText().equals("")) {
                 JOptionPane.showMessageDialog(null, "Please input at least one question", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            if(!view.question.getText().equals("")){
+            if (!view.question.getText().equals("")) {
                 storeTestPage();
             }
             // Get the publisher name
             String name = JOptionPane.showInputDialog("Thank you for uploading, please input your name: ");
-            if(name == null || name.equals("")){
+            if (name == null || name.equals("")) {
                 name = "Anonymous";
             }
 
@@ -166,7 +171,7 @@ public class Controller implements ActionListener, MouseListener {
         }
 
         if (e.getSource() == view.showList) {
-            if(!show_isSelected){
+            if (!show_isSelected) {
                 add_isSelected = false;
                 show_isSelected = true;
                 model.changePanel(view.psyPanel, view.addTestPanel, view.showTestsPanel());
@@ -176,51 +181,118 @@ public class Controller implements ActionListener, MouseListener {
         }
 
         if (e.getSource() == view.add) {
-            if(!add_isSelected){
+            if (!add_isSelected) {
                 add_isSelected = true;
                 show_isSelected = false;
                 nextPageInitialize();
                 initialize();
-                if(!is_showDetailed){
+                if (!is_showDetailed) {
                     model.changePanel(view.psyPanel, view.showTestsPanel, view.addTestPanel());
-                }else{
-                    model.changePanel(view.psyPanel, view.testDetailPanel, view.showTestsPanel);
+                } else {
+                    model.changePanel(view.psyPanel, view.testDetailPanel, view.showTestsPanel());
                     model.changePanel(view.psyPanel, view.showTestsPanel, view.addTestPanel());
                     is_showDetailed = false;
                 }
             }
         }
 
-        if(e.getSource() == view.backToList) {
-            if (!is_client){
+        if (e.getSource() == view.backToList) {
+            if (!is_client) {
                 model.changePanel(view.psyPanel, view.testDetailPanel, view.showTestsPanel);
-            }else{
+            } else {
                 model.changePanel(view.clientPanel, view.doTestPanel, view.showTestsPanel);
             }
             is_showDetailed = false;
             filesList = new ArrayList();
             view.fileList = new ArrayList();
+            answerList = new ArrayList();
             pageNum = 1;
             index = 0;
         }
 
-        if(e.getSource() == view.showNextPage) {
-            pageNum ++;
-            model.changePanel(view.psyPanel, view.testDetailPanel, view.testDetailPanel(testNum,pageNum));
+        if (e.getSource() == view.showNextPage) {
+            pageNum++;
+            if (is_client) {
+                ArrayList<String> pageAnswer = new ArrayList();
+                for (int i = 0; i < view.totalBtnGroup.get(pageNum - 2).size(); i++) {
+                    try{ // Answer all questions
+                        pageAnswer.add(view.totalBtnGroup.get(pageNum - 2).get(i).getSelection().getActionCommand());
+                    }catch (NullPointerException event){
+                        JOptionPane.showMessageDialog(null, "Please answer all questions.");
+                        pageNum--;
+                        return;
+                    }
+                }
+                answerList.add(pageAnswer);
+                model.changePanel(view.clientPanel, view.doTestPanel, view.doTestPanel(testNum, pageNum));
+            } else {
+                model.changePanel(view.psyPanel, view.testDetailPanel, view.testDetailPanel(testNum, pageNum));
+            }
         }
 
-        if(e.getSource() == view.showPrePage) {
-            pageNum --;
-            model.changePanel(view.psyPanel, view.testDetailPanel, view.testDetailPanel(testNum,pageNum));
+        if (e.getSource() == view.finish) {
+            ArrayList<String> pageAnswer = new ArrayList();
+            for (int i = 0; i < view.totalBtnGroup.get(pageNum - 1).size(); i++) {
+                try{ // Answer all questions
+                    pageAnswer.add(view.totalBtnGroup.get(pageNum - 1).get(i).getSelection().getActionCommand());
+                }catch (NullPointerException event){
+                    JOptionPane.showMessageDialog(null, "Please answer all questions.");
+                    return;
+                }
+            }
+            answerList.add(pageAnswer);
         }
 
-        if(e.getSource() == view.finish) {
+        if (e.getSource() == view.submit) {
+            System.out.println("hahahahah");
+            DatabaseAgent database = new DatabaseAgent();
+            database.connect();
+            String answer = database.getTestDetail(testNum, "ANSWER");
+            String star = database.getTestDetail(testNum, "STARS");
+
+            if(!answer.equals("")){
+                answer += ";";
+            }
+
+            if(!star.equals("")){
+                star += ";";
+            }
+            star += mark+"";
+
+            for (int i = 0; i < answerList.size(); i++) {
+                for(String s : answerList.get(i)){
+                    answer += s;
+                }
+            }
+            database.uploadAnswer(testNum, answer, star);
+            database.close();
+            model.changePanel(view.clientPanel, view.thanksPanel, view.showTestsPanel());
+            initialize();
+            is_client = true;
+        }
+
+        if (e.getSource() == view.showPrePage) {
+            pageNum--;
+            if (is_client) {
+                // Remove btn group
+                view.totalBtnGroup.remove(view.totalBtnGroup.size() - 1);
+                view.totalBtnGroup.remove(view.totalBtnGroup.size() - 1);
+                answerList.remove(answerList.size() - 1);
+
+                model.changePanel(view.clientPanel, view.doTestPanel, view.doTestPanel(testNum, pageNum));
+            } else {
+                model.changePanel(view.psyPanel, view.testDetailPanel, view.testDetailPanel(testNum, pageNum));
+            }
+        }
+
+        if (e.getSource() == view.finish) {
             model.changePanel(view.clientPanel, view.doTestPanel, view.thanksPanel());
         }
 
         for (int i = 0; i < view.stars.length; i++) {
-            if(e.getSource() == view.stars[i]){
-                for (int k = i+1; k < view.stars.length; k++) {
+            if (e.getSource() == view.stars[i]) {
+                mark = i + 1;
+                for (int k = i + 1; k < view.stars.length; k++) {
                     view.stars[k].setSelected(false);
                 }
                 for (int j = 0; j <= i; j++) {
@@ -239,27 +311,27 @@ public class Controller implements ActionListener, MouseListener {
             ArrayList<String> questions = new ArrayList();
             ArrayList<String> urls = new ArrayList();
             ArrayList<File> newFiles = model.copyFile(testPageList);
-            for(String question : testPageList.get(i-1).getQuestions()){
+            for (String question : testPageList.get(i - 1).getQuestions()) {
                 questions.add(question);
             }
 
-            for(File f : newFiles) {
+            for (File f : newFiles) {
                 urls.add(f.getAbsolutePath());
             }
-            database.upload(TID, i, urls, questions, name, date);
+            database.upload(TID, i, urls, questions, name, date, i);
         }
         database.close();
     }
 
-    public void showPanel(){
-        if(filesList.size() != 0){
-            if(model.getFileType(filesList.get(index)).equals("png") || model.getFileType(filesList.get(index)).equals("jpg")){
+    public void showPanel() {
+        if (filesList.size() != 0) {
+            if (model.getFileType(filesList.get(index)).equals("png") || model.getFileType(filesList.get(index)).equals("jpg")) {
                 view.imgPanel.setVisible(true);
                 view.mp.setVisible(false);
                 view.imgPanel.setImg(filesList.get(index).getAbsolutePath());
                 view.imgPanel.revalidate();
                 view.imgPanel.repaint();
-            }else {
+            } else {
                 view.imgPanel.setVisible(false);
                 view.mp.setVisible(true);
                 view.mp.setFile(filesList.get(index));
@@ -267,15 +339,15 @@ public class Controller implements ActionListener, MouseListener {
                 view.mp.repaint();
             }
             view.showURL.setText(filesList.get(index).getAbsolutePath());
-            view.uploadNum.setText("Total: "+filesList.size()+" items.    "+"Current: "+(index+1));
+            view.uploadNum.setText("Total: " + filesList.size() + " items.    " + "Current: " + (index + 1));
         }
     }
 
-    public void showQuestions(){
+    public void showQuestions() {
         String output = "";
         for (int i = 0; i < questionList.size(); i++) {
-            output += (i+1)+". "+questionList.get(i);
-            if(i != questionList.size()-1){
+            output += (i + 1) + ". " + questionList.get(i);
+            if (i != questionList.size() - 1) {
                 output += "\n";
             }
         }
@@ -285,11 +357,9 @@ public class Controller implements ActionListener, MouseListener {
     public void storeTestPage() {
         TestPage page = new TestPage(filesList, questionList);
         testPageList.add(page);
-//        System.out.println(page.getFiles());
-//        System.out.println(page.getQuestions());
     }
 
-    public void nextPageInitialize(){
+    public void nextPageInitialize() {
         index = 0;
         filesList = new ArrayList<>();
         questionList = new ArrayList<>();
@@ -308,27 +378,30 @@ public class Controller implements ActionListener, MouseListener {
         pageNum = 1;
         testPageList = new ArrayList();
         is_client = false;
+        answerList = new ArrayList();
+        view.totalBtnGroup = new ArrayList();
+        mark = 0;
     }
 
-    public void showDetail(JPanel p1, JPanel p2, JPanel p3){
+    public void showDetail(JPanel p1, JPanel p2, JPanel p3) {
         is_showDetailed = true;
         model.changePanel(p1, p2, p3);
         filesList = view.fileList;
-        if(filesList.size() != 0){
+        if (filesList.size() != 0) {
             showPanel();
         }
-        if(filesList.size() > 1){
+        if (filesList.size() > 1) {
             view.next.setVisible(true);
         }
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        testNum = view.testsTable.getSelectedRow()+1;
-        if(is_client){
-            showDetail(view.clientPanel, view.showTestsPanel, view.doTestPanel(testNum,1));
-        }else{
-            showDetail(view.psyPanel, view.showTestsPanel, view.testDetailPanel(testNum,1));
+        testNum = view.testsTable.getSelectedRow() + 1;
+        if (is_client) {
+            showDetail(view.clientPanel, view.showTestsPanel, view.doTestPanel(testNum, 1));
+        } else {
+            showDetail(view.psyPanel, view.showTestsPanel, view.testDetailPanel(testNum, 1));
         }
     }
 
