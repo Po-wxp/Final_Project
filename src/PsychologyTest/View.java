@@ -19,7 +19,7 @@ import java.util.ArrayList;
 public class View extends JFrame {
     private Controller controller;
     protected JButton psy, client, add, showList, back, back2, addFiles, save, pre, next, nextTest,
-            addQuestion, removeQuestion, edit, showNextPage, showPrePage,backToList, finish, submit;
+            addQuestion, removeQuestion, edit, showNextPage, showPrePage,backToList, finish, submit, removeMedia;
     protected JTextArea question;
     protected JFileChooser fc;
     protected JLabel identity, showURL, uploadNum;
@@ -189,14 +189,13 @@ public class View extends JFrame {
 
         // Show URL
         showURL = new JLabel("");
-        showURL.setBounds(110, 80, 400, 20);
+        showURL.setBounds(110, 80, 350, 20);
         addTestPanel.add(showURL);
 
         // Upload numbers
         uploadNum = new JLabel("");
         uploadNum.setBounds(110, 320, 200, 20);
         addTestPanel.add(uploadNum);
-
 
         //Add question
         ImageIcon addQIcon = new ImageIcon("static/add.png");
@@ -212,6 +211,13 @@ public class View extends JFrame {
         buttonDefault(removeQuestion, null, Color.white);
         removeQuestion.setBounds(140, 460, 40, 40);
         addTestPanel.add(removeQuestion);
+
+        // Remove media
+        removeMedia = new JButton(new ImageIcon("static/delete.png"));
+        removeMedia.setVisible(false);
+        buttonDefault(removeMedia, null, Color.white);
+        removeMedia.setBounds(470, 70, 30, 30);
+        addTestPanel.add(removeMedia);
 
         return addTestPanel;
     }

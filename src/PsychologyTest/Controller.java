@@ -305,6 +305,19 @@ public class Controller implements ActionListener, MouseListener {
             }
         }
 
+        if(e.getSource() == view.removeMedia){
+            int select = JOptionPane.showConfirmDialog(null,"Are you sure to delete the current file?","warning",JOptionPane.YES_NO_OPTION);
+            if(select == JOptionPane.YES_OPTION){
+                filesList.remove(index);
+                if(index > 0){
+                    index --;
+                }
+                if(index == 0) view.pre.setVisible(false);
+                if(index == filesList.size()-1) view.next.setVisible(false);
+                showPanel();
+            }
+        }
+
         if (e.getSource() == view.finish) {
             model.changePanel(view.clientPanel, view.doTestPanel, view.thanksPanel());
         }
@@ -344,6 +357,7 @@ public class Controller implements ActionListener, MouseListener {
 
     public void showPanel() {
         if (filesList.size() != 0) {
+            view.removeMedia.setVisible(true);
             if (model.getFileType(filesList.get(index)).equals("png") || model.getFileType(filesList.get(index)).equals("jpg")) {
                 view.imgPanel.setVisible(true);
                 view.mp.setVisible(false);
@@ -359,6 +373,13 @@ public class Controller implements ActionListener, MouseListener {
             }
             view.showURL.setText(filesList.get(index).getAbsolutePath());
             view.uploadNum.setText("Total: " + filesList.size() + " items.    " + "Current: " + (index + 1));
+        }else{
+            view.removeMedia.setVisible(false);
+            view.imgPanel.setVisible(false);
+            view.mp.setVisible(false);
+            view.emptyPanel.setVisible(true);
+            view.showURL.setVisible(false);
+            view.uploadNum.setVisible(false);
         }
     }
 
