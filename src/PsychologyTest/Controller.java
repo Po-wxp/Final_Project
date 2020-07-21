@@ -4,6 +4,7 @@ package PsychologyTest;
 import database.DatabaseAgent;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -58,13 +59,14 @@ public class Controller implements ActionListener, MouseListener {
         }
 
         if (e.getSource() == view.addFiles) {
-            int interval = view.fc.showDialog(view, "Add Files");
+            UIManager.put("Panel.background", null);
+            int interval = view.fc.showDialog(null, "Add Files");
             if (interval == view.fc.APPROVE_OPTION) {
                 view.emptyPanel.setVisible(false);
                 File[] files = view.fc.getSelectedFiles();
                 view.next.setVisible(true);
                 for (File f : files) {
-                    filesList.add(f);
+                    if(!filesList.contains(f)) filesList.add(f);
                 }
                 showPanel();
             }
@@ -113,6 +115,7 @@ public class Controller implements ActionListener, MouseListener {
         }
 
         if (e.getSource() == view.addQuestion) {
+            model.dialogStyle();
             String question = JOptionPane.showInputDialog("Please input the question: ");
             if ((question != null)) {
                 questionList.add(question);
@@ -126,6 +129,7 @@ public class Controller implements ActionListener, MouseListener {
             for (int i = 0; i < questionList.size(); i++) {
                 list[i] = i + 1;
             }
+            model.dialogStyle();
             Object selectedValue = JOptionPane.showInputDialog(null, "Select the index", "Remove a question",
                     JOptionPane.INFORMATION_MESSAGE, null,
                     list, list[0]);
@@ -140,7 +144,11 @@ public class Controller implements ActionListener, MouseListener {
         }
 
         if (e.getSource() == view.nextTest) {
+            if(view.mp.getMediaPlayer().isPlaying()){
+                view.mp.getMediaPlayer().pause();
+            }
             if (view.question.getText().equals("")) {
+                model.dialogStyle();
                 JOptionPane.showMessageDialog(null, "Please input at least one question", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -153,6 +161,7 @@ public class Controller implements ActionListener, MouseListener {
 
         if (e.getSource() == view.save) {
             if (testPageList.size() == 0 && view.question.getText().equals("")) {
+                model.dialogStyle();
                 JOptionPane.showMessageDialog(null, "Please input at least one question", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -160,6 +169,7 @@ public class Controller implements ActionListener, MouseListener {
                 storeTestPage();
             }
             // Get the publisher name
+            model.dialogStyle();
             String name = JOptionPane.showInputDialog("Thank you for uploading, please input your name: ");
             if (name == null || name.equals("")) {
                 name = "Anonymous";
@@ -225,6 +235,7 @@ public class Controller implements ActionListener, MouseListener {
                     try{ // Answer all questions
                         pageAnswer.add(view.totalBtnGroup.get(pageNum - 2).get(i).getSelection().getActionCommand());
                     }catch (NullPointerException event){
+                        model.dialogStyle();
                         JOptionPane.showMessageDialog(null, "Please answer all questions.");
                         pageNum--;
                         return;
@@ -243,6 +254,7 @@ public class Controller implements ActionListener, MouseListener {
                 try{ // Answer all questions
                     pageAnswer.add(view.totalBtnGroup.get(pageNum - 1).get(i).getSelection().getActionCommand());
                 }catch (NullPointerException event){
+                    model.dialogStyle();
                     JOptionPane.showMessageDialog(null, "Please answer all questions.");
                     return;
                 }
@@ -309,17 +321,6 @@ public class Controller implements ActionListener, MouseListener {
             }
         }
     }
-
-//    public void loadFile(){
-//        if(view.lists.size() != 0){
-//            filesList = new ArrayList();
-//            for (int i = 0; i < view.lists.size(); i++) {
-//                File f = new File(view.lists.get(i));
-//                filesList.add(f);
-//            }
-//            showPanel();
-//        }
-//    }
 
     public void saveData(String name, String date) {
         DatabaseAgent database = new DatabaseAgent();
@@ -390,6 +391,9 @@ public class Controller implements ActionListener, MouseListener {
         view.pre.setVisible(false);
         view.emptyPanel.setVisible(true);
         view.fileList = new ArrayList();
+        if(view.mp.getMediaPlayer().isPlaying()){
+            view.mp.getMediaPlayer().pause();
+        }
     }
 
     public void initialize() {

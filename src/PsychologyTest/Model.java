@@ -3,6 +3,7 @@ package PsychologyTest;
 import MediaPlayer.MediaPlayer;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -44,5 +45,13 @@ public class Model {
     public String getFileType(File file){
         String fileName = file.getName();
         return fileName.substring(fileName.lastIndexOf(".",fileName.length())).substring(1);
+    }
+
+    public void dialogStyle(){
+//        UIManager.put("Button.background", Color.white);
+        UIManager.put("Button.FocusPainted",false);
+        UIManager.put("Button.foreground", Color.BLACK);
+        UIManager.put("Panel.background", Color.white);
+        UIManager.put("OptionPane.background", Color.white);
     }
 }

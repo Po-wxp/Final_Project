@@ -10,7 +10,10 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import uk.co.caprica.vlcj.binding.internal.libvlc_logo_position_e;
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
+import uk.co.caprica.vlcj.player.embedded.DefaultAdaptiveRuntimeFullScreenStrategy;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 
 public class MediaPlayer extends JPanel {
@@ -21,10 +24,10 @@ public class MediaPlayer extends JPanel {
     private final JPanel panel = new JPanel();
     private JProgressBar progress;
 
-    public MediaPlayer() {
+    public MediaPlayer(Window w) {
         this.setLayout(new BorderLayout());
         contentPane = new JPanel();
-        contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+        contentPane.setBorder(BorderFactory.createLineBorder(Color.black));
         contentPane.setLayout(new BorderLayout(0, 0));
 
 
@@ -33,26 +36,61 @@ public class MediaPlayer extends JPanel {
         videopanel.setLayout(new BorderLayout(0, 0));
 
         playerComponent = new EmbeddedMediaPlayerComponent();
+
+        playerComponent.getMediaPlayer().setFullScreenStrategy(
+                new DefaultAdaptiveRuntimeFullScreenStrategy(w){
+                    @Override
+                    protected void beforeEnterFullScreen() {
+
+                    }
+
+                    @Override
+                    protected void afterExitFullScreen() {
+                    }
+                }
+        );
+
         videopanel.add(playerComponent, BorderLayout.CENTER);
         videopanel.add(panel, BorderLayout.SOUTH);
 
-        panel.setLayout(new BorderLayout(0, 0));
+
+        panel.setLayout(new BorderLayout());
 
         JPanel controlPanel = new JPanel();
+        controlPanel.setBackground(Color.white);
+        controlPanel.setPreferredSize(new Dimension(0,15));
         panel.add(controlPanel);
-        controlPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 
-        JButton btnNewButton = new JButton("play");
-        btnNewButton.setFocusPainted(false);
-        btnNewButton.setBorderPainted(false);
-        controlPanel.add(btnNewButton);
+        controlPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, -5));
 
-        JButton button = new JButton("pause");
+        playerComponent.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                controlPanel.setVisible(true);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                controlPanel.setVisible(false);
+            }
+        });
+
+        JToggleButton button = new JToggleButton();
+        button.setIcon(new ImageIcon("static/play.png"));
+        button.setSelectedIcon(new ImageIcon("static/pause.png"));
         button.setFocusPainted(false);
         button.setBorderPainted(false);
         controlPanel.add(button);
 
+        JButton stopBtn = new JButton();
+        stopBtn.setIcon(new ImageIcon("static/stop.png"));
+        stopBtn.setBackground(Color.white);
+        stopBtn.setFocusPainted(false);
+        stopBtn.setBorderPainted(false);
+        controlPanel.add(stopBtn);
+
         JSlider slider = new JSlider();
+        slider.setBackground(Color.white);
         //Max volume is 120
         slider.setValue(100);
         slider.setMaximum(120);
@@ -64,6 +102,7 @@ public class MediaPlayer extends JPanel {
             }
         });
         progress = new JProgressBar();
+        progress.setBackground(Color.white);
         progress.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -74,23 +113,27 @@ public class MediaPlayer extends JPanel {
             }
         });
         progress.setStringPainted(true);
+        progress.setPreferredSize(new Dimension(0,15));
         panel.add(progress, BorderLayout.NORTH);
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                playerComponent.getMediaPlayer().pause();
+                if(!button.isSelected()){
+                    playerComponent.getMediaPlayer().pause();
+                }else{
+                    playerComponent.getMediaPlayer().play();
+                }
+
             }
         });
-        btnNewButton.addMouseListener(new MouseAdapter() {
+
+        stopBtn.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent arg0) {
-                playerComponent.getMediaPlayer().play();
+            public void mouseClicked(MouseEvent e) {
+                playerComponent.getMediaPlayer().stop();
             }
         });
-        btnNewButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-            }
-        });
+
         this.add(contentPane);
 
     }

@@ -7,7 +7,6 @@ import database.DatabaseAgent;
 import uk.co.caprica.vlcj.runtime.RuntimeUtil;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -28,7 +27,7 @@ public class View extends JFrame {
     protected Color blue;
     protected JPanel psyPanel, addTestPanel, showTestsPanel, emptyPanel, clientPanel, doTestPanel, testDetailPanel, thanksPanel;
     protected imgPanel imgPanel;
-    protected MediaPlayer mp;
+    public MediaPlayer mp;
     protected JTable testsTable;
     protected ArrayList<File> fileList;
     private DatabaseAgent database;
@@ -145,7 +144,18 @@ public class View extends JFrame {
         addFiles.setBounds(30, 30, 100, 30);
         addTestPanel.add(addFiles);
 
-        //File chooser
+        //File chooser (windows appearance)
+        try {
+            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+        } catch (ClassNotFoundException classNotFoundException) {
+            classNotFoundException.printStackTrace();
+        } catch (InstantiationException instantiationException) {
+            instantiationException.printStackTrace();
+        } catch (IllegalAccessException illegalAccessException) {
+            illegalAccessException.printStackTrace();
+        } catch (UnsupportedLookAndFeelException unsupportedLookAndFeelException) {
+            unsupportedLookAndFeelException.printStackTrace();
+        }
         fc = new JFileChooser();
         fc.setMultiSelectionEnabled(true);
         FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG & PNG & MP4 & MP3", "jpg", "png", "mp4", "mp3");
@@ -237,8 +247,9 @@ public class View extends JFrame {
 
         // Media Panel
         NativeLibrary.addSearchPath(RuntimeUtil.getLibVlcLibraryName(), "d:/VideoLAN/VLC");
-        mp = new MediaPlayer();
+        mp = new MediaPlayer(this);
         mp.setVisible(false);
+
         mp.setBounds(100, 100, 400, 220);
         panel.add(mp);
 
