@@ -10,8 +10,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 
@@ -59,6 +61,7 @@ public class Controller implements ActionListener, MouseListener {
         }
 
         if (e.getSource() == view.addFiles) {
+            view.removeMedia.setVisible(true);
             UIManager.put("Panel.background", null);
             int interval = view.fc.showDialog(null, "Add Files");
             if (interval == view.fc.APPROVE_OPTION) {
@@ -306,6 +309,7 @@ public class Controller implements ActionListener, MouseListener {
         }
 
         if(e.getSource() == view.removeMedia){
+            model.dialogStyle();
             int select = JOptionPane.showConfirmDialog(null,"Are you sure to delete the current file?","warning",JOptionPane.YES_NO_OPTION);
             if(select == JOptionPane.YES_OPTION){
                 filesList.remove(index);
@@ -315,6 +319,54 @@ public class Controller implements ActionListener, MouseListener {
                 if(index == 0) view.pre.setVisible(false);
                 if(index == filesList.size()-1) view.next.setVisible(false);
                 showPanel();
+            }
+        }
+
+        if(e.getSource() == view.edit){
+            view.edit.setVisible(false);
+            view.saveModifyBtn.setVisible(true);
+            view.cancelModifyBtn.setVisible(true);
+            view.question.setEditable(true);
+            view.question.setBorder(BorderFactory.createLineBorder(Color.black));
+            if(filesList.size() != 0){
+                view.removeMedia.setVisible(true);
+                view.addFiles.setVisible(true);
+            }
+        }
+
+        if(e.getSource() == view.cancelModifyBtn) showDetail(view.psyPanel, view.testDetailPanel,view.testDetailPanel(testNum,pageNum));
+
+        if(e.getSource() == view.saveModifyBtn) {
+            model.dialogStyle();
+            int select = JOptionPane.showConfirmDialog(null,"Are you sure to save the modification?","Ensure",JOptionPane.YES_NO_OPTION);
+            if(select == JOptionPane.YES_OPTION) {
+                // Update database
+                String medias = "";
+                ArrayList<File> newFiles = model.copyFile(filesList);
+                if(newFiles.size() != 0){
+                    for (int i = 0; i < newFiles.size(); i++) {
+                        medias += newFiles.get(i).getAbsolutePath();
+                        if(i != newFiles.size()-1){
+                            medias += ";";
+                        }
+                    }
+                }
+                String[] questionsArr= view.question.getText().split("\\r?\\n");
+                String questions = "";
+                for (int i = 0; i < questionsArr.length; i++) {
+                    questions += questionsArr[i].substring(questionsArr[i].indexOf(' ')+1);
+                    if(i != questionsArr.length - 1){
+                        questions += ";";
+                    }
+                }
+                DatabaseAgent database = new DatabaseAgent();
+                database.connect();
+                database.updateTestsTable(testNum, pageNum, medias, questions);
+                database.close();
+                filesList = new ArrayList();
+                view.fileList = new ArrayList();
+                index = 0;
+                showDetail(view.psyPanel, view.testDetailPanel,view.testDetailPanel(testNum,pageNum));
             }
         }
 
@@ -357,7 +409,6 @@ public class Controller implements ActionListener, MouseListener {
 
     public void showPanel() {
         if (filesList.size() != 0) {
-            view.removeMedia.setVisible(true);
             if (model.getFileType(filesList.get(index)).equals("png") || model.getFileType(filesList.get(index)).equals("jpg")) {
                 view.imgPanel.setVisible(true);
                 view.mp.setVisible(false);

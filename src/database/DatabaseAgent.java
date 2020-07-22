@@ -77,6 +77,22 @@ public class DatabaseAgent {
         }
     }
 
+    public void updateTestsTable(int TID, int TPID, String media, String questions){
+        try {
+            PreparedStatement statement = c.prepareStatement("UPDATE TESTS SET MEDIAS=?, QUESTIONS=? WHERE TID=? AND TPID=?");
+            statement.setString(1, media);
+            statement.setString(2, questions);
+            statement.setInt(3, TID);
+            statement.setInt(4, TPID);
+            statement.executeUpdate();
+
+            System.out.println("Update data successfully");
+            statement.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public int getMaxTID() {
         int max = 0;
         try {

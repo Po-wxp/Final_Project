@@ -19,7 +19,8 @@ import java.util.ArrayList;
 public class View extends JFrame {
     private Controller controller;
     protected JButton psy, client, add, showList, back, back2, addFiles, save, pre, next, nextTest,
-            addQuestion, removeQuestion, edit, showNextPage, showPrePage,backToList, finish, submit, removeMedia;
+            addQuestion, removeQuestion, edit, showNextPage, showPrePage,backToList, finish, submit, removeMedia,
+            saveModifyBtn, cancelModifyBtn;
     protected JTextArea question;
     protected JFileChooser fc;
     protected JLabel identity, showURL, uploadNum;
@@ -506,14 +507,43 @@ public class View extends JFrame {
 
     public JPanel testDetailPanel(int TID, int TPID) {
         testDetailPanel = new JPanel(null);
+        Color skyBlue = new Color(41, 189, 226);
         // Add components
         detailCommonPart(testDetailPanel, TID, TPID);
 
         // Edit Button
         edit = new JButton("Edit");
-        buttonDefault(edit, null, new Color(41, 189, 226));
+        buttonDefault(edit, null, skyBlue);
         edit.setBounds(30, 30, 100, 30);
         testDetailPanel.add(edit);
+
+        // Save Button
+        saveModifyBtn = new JButton("Save");
+        buttonDefault(saveModifyBtn, null, skyBlue);
+        saveModifyBtn.setVisible(false);
+        saveModifyBtn.setBounds(30, 30, 70, 30);
+        testDetailPanel.add(saveModifyBtn);
+
+        // Cancel Buton
+        cancelModifyBtn = new JButton("Cancel");
+        buttonDefault(cancelModifyBtn, null, skyBlue);
+        cancelModifyBtn.setBounds(130, 30, 70, 30);
+        cancelModifyBtn.setVisible(false);
+        testDetailPanel.add(cancelModifyBtn);
+
+        //Add File button
+        addFiles = new JButton(new ImageIcon("static/add.png"));
+        addFiles.setVisible(false);
+        buttonDefault(addFiles, null, Color.white);
+        addFiles.setBounds(50, 120, 40, 40);
+        testDetailPanel.add(addFiles);
+
+        //Remove File button
+        removeMedia = new JButton(new ImageIcon("static/delete40.png"));
+        removeMedia.setVisible(false);
+        buttonDefault(removeMedia, null, Color.white);
+        removeMedia.setBounds(50, 180, 40, 40);
+        testDetailPanel.add(removeMedia);
 
         // Query questions for specific page
         String content = "";

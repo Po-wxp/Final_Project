@@ -75,6 +75,7 @@ public class MediaPlayer extends JPanel {
         button.setSelectedIcon(new ImageIcon("static/pause.png"));
         button.setFocusPainted(false);
         button.setBorderPainted(false);
+        button.setBackground(Color.white);
         controlPanel.add(button);
 
         JButton stopBtn = new JButton();
@@ -126,6 +127,7 @@ public class MediaPlayer extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 playerComponent.getMediaPlayer().stop();
+                button.setSelected(false);
             }
         });
 
