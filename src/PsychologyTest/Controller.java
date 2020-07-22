@@ -25,7 +25,7 @@ public class Controller implements ActionListener, MouseListener {
     private int index;
     private ArrayList<TestPage> testPageList;
     private int pageNum, testNum;
-    private boolean show_isSelected, add_isSelected, is_showDetailed;
+    private boolean show_isSelected, add_isSelected, is_showDetailed, show2_isSelected,evaluation_isSelection;
     protected boolean is_client;
     private ArrayList<ArrayList<String>> answerList;
     private int mark;
@@ -41,6 +41,8 @@ public class Controller implements ActionListener, MouseListener {
         pageNum = 1;
         show_isSelected = false;
         add_isSelected = true;
+        show2_isSelected = true;
+        evaluation_isSelection = false;
         is_client = false;
         // If the table is be clicked to show detail
         is_showDetailed = false;
@@ -187,17 +189,28 @@ public class Controller implements ActionListener, MouseListener {
             saveData(name, formatDate);
             nextPageInitialize();
             initialize();
+            view.removeMedia.setVisible(false);
 //            JOptionPane.showConfirmDialog(null, "Thank you for uploading the test", "Completed", JOptionPane.DEFAULT_OPTION);
         }
 
         if (e.getSource() == view.showList) {
-            if (!show_isSelected) {
-                add_isSelected = false;
-                show_isSelected = true;
-                model.changePanel(view.psyPanel, view.addTestPanel, view.showTestsPanel());
-                nextPageInitialize();
-                initialize();
+            if(!is_client){
+                if (!show_isSelected) {
+                    add_isSelected = false;
+                    show_isSelected = true;
+                    model.changePanel(view.psyPanel, view.addTestPanel, view.showTestsPanel());
+                    nextPageInitialize();
+                    initialize();
+                }
+            }else{
+                if(!show2_isSelected){
+                    evaluation_isSelection = false;
+                    show2_isSelected = true;
+                    model.changePanel(view.clientPanel, view.evaluationPanel, view.showTestsPanel());
+                }
+
             }
+
         }
 
         if (e.getSource() == view.add) {
@@ -223,11 +236,15 @@ public class Controller implements ActionListener, MouseListener {
                 model.changePanel(view.clientPanel, view.doTestPanel, view.showTestsPanel());
             }
             is_showDetailed = false;
+            view.totalBtnGroup = new ArrayList<>();
             filesList = new ArrayList();
             view.fileList = new ArrayList();
             answerList = new ArrayList();
             pageNum = 1;
             index = 0;
+            if(view.mp.getMediaPlayer().isPlaying()){
+                view.mp.getMediaPlayer().pause();
+            }
         }
 
         if (e.getSource() == view.showNextPage) {
@@ -392,6 +409,38 @@ public class Controller implements ActionListener, MouseListener {
             model.changePanel(view.clientPanel, view.doTestPanel, view.thanksPanel());
         }
 
+        if(e.getSource() == view.evaluationBtn){
+            if (!evaluation_isSelection){
+                evaluation_isSelection = true;
+                show2_isSelected = false;
+                if(is_showDetailed){
+                    is_showDetailed = false;
+                    view.backToList.doClick();
+                    model.changePanel(view.clientPanel, view.doTestPanel, view.evaluationPanel());
+                }else{
+                    model.changePanel(view.clientPanel, view.showTestsPanel, view.evaluationPanel());
+                }
+            }
+        }
+
+        if(e.getSource() == view.submitEvaluationBtn){
+            String evaluation = view.evaluation.getText();
+            if(evaluation.equals("")){
+                model.dialogStyle();
+                JOptionPane.showMessageDialog(null, "Please write something", "Error", JOptionPane.ERROR_MESSAGE);
+            }else{
+                DatabaseAgent database = new DatabaseAgent();
+                database.connect();
+                database.system_evaluation(evaluation);
+                model.dialogStyle();
+                int input = JOptionPane.showConfirmDialog(null,
+                        "Successful evaluation", "Thnks!", JOptionPane.DEFAULT_OPTION);
+                if(input == 0 || input == -1){
+                    view.evaluation.setText("");
+                }
+            }
+        }
+
         for (int i = 0; i < view.stars.length; i++) {
             if (e.getSource() == view.stars[i]) {
                 mark = i + 1;
@@ -493,6 +542,9 @@ public class Controller implements ActionListener, MouseListener {
         answerList = new ArrayList();
         view.totalBtnGroup = new ArrayList();
         mark = 0;
+
+        show2_isSelected = true;
+        evaluation_isSelection = false;
     }
 
     public void showDetail(JPanel p1, JPanel p2, JPanel p3) {

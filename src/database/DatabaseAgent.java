@@ -214,4 +214,16 @@ public class DatabaseAgent {
         }
     }
 
+    public void system_evaluation(String evaluation){
+        try {
+            Statement statement = c.createStatement();
+            String sql = "INSERT INTO SYSTEM_EVALUATION(EVALUATION) VALUES (\'" +evaluation+ "\')";
+            statement.executeUpdate(sql);
+            System.out.println("Upload evaluation successfully");
+            statement.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

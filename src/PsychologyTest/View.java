@@ -20,13 +20,14 @@ public class View extends JFrame {
     private Controller controller;
     protected JButton psy, client, add, showList, back, back2, addFiles, save, pre, next, nextTest,
             addQuestion, removeQuestion, edit, showNextPage, showPrePage, backToList, finish, submit, removeMedia,
-            saveModifyBtn, cancelModifyBtn;
+            saveModifyBtn, cancelModifyBtn, evaluationBtn, submitEvaluationBtn;
     protected JTextArea question, evaluation;
     protected JFileChooser fc;
     protected JLabel identity, showURL, uploadNum;
     protected JPanel index;
     protected Color blue;
-    protected JPanel psyPanel, addTestPanel, showTestsPanel, emptyPanel, clientPanel, doTestPanel, testDetailPanel, thanksPanel;
+    protected JPanel psyPanel, addTestPanel, showTestsPanel, emptyPanel, clientPanel, doTestPanel,
+            testDetailPanel, thanksPanel, evaluationPanel;
     protected imgPanel imgPanel;
     public MediaPlayer mp;
     protected JTable testsTable;
@@ -342,7 +343,7 @@ public class View extends JFrame {
 
         JPanel left = new JPanel(new BorderLayout());
         JPanel leftTop = new JPanel(new BorderLayout());
-        JPanel leftMid = new JPanel(new BorderLayout());
+        JPanel leftMid = new JPanel(new GridLayout(2, 1, 0, 20));
         JPanel leftBot = new JPanel(new BorderLayout());
 
         //Set left color
@@ -351,20 +352,24 @@ public class View extends JFrame {
         leftBot.setBackground(blue);
 
         // button default
-        JButton showList2 = new JButton("Show Tests");
+        showList = new JButton("Show Tests");
         back2 = new JButton("Return");
+        evaluationBtn = new JButton("Evaluation");
 
-        JButton[] btns = new JButton[2];
-        btns[0] = showList2;
+        JButton[] btns = new JButton[3];
+        btns[0] = showList;
         btns[1] = back2;
+        btns[2] = evaluationBtn;
 
         hover(btns);
 
-        showList2.setActionCommand("isPressed");
+        showList.setActionCommand("isPressed");
         back2.setActionCommand("unpressed");
+        evaluationBtn.setActionCommand("unpressed");
 
         buttonDefault(back2, f2, blue);
-        buttonDefault(showList2, f2, Color.white);
+        buttonDefault(evaluationBtn, f2, blue);
+        buttonDefault(showList, f2, Color.white);
 
         //Left top -- label
         leftTop.setPreferredSize(new Dimension(0, 100));
@@ -378,8 +383,9 @@ public class View extends JFrame {
         leftBot.add(back2);
 
         //Left mid -- function buttons
-        leftMid.add(showList2);
-        leftMid.setBorder(BorderFactory.createEmptyBorder(50, 0, 260, 0));
+        leftMid.add(showList);
+        leftMid.add(evaluationBtn);
+        leftMid.setBorder(BorderFactory.createEmptyBorder(50, 0, 200, 0));
 
         //Left
         left.setPreferredSize(new Dimension(180, 0));
@@ -396,7 +402,6 @@ public class View extends JFrame {
 
     public JPanel doTestPanel(int TID, int TPID) {
         doTestPanel = new JPanel(null);
-        totalBtnGroup = new ArrayList<>();
         // Add components
         detailCommonPart(doTestPanel, TID, TPID);
 
@@ -560,6 +565,33 @@ public class View extends JFrame {
         thanksPanel.add(submit);
 
         return thanksPanel;
+    }
+
+    public JPanel evaluationPanel() {
+        evaluationPanel = new JPanel(null);
+        evaluationPanel.setBackground(Color.white);
+
+        // Label
+        JLabel label = new JLabel("Appreciate for your evaluation 😊 !");
+        label.setFont(f1);
+        label.setBounds(110, 110, 400, 50);
+        evaluationPanel.add(label);
+
+        // JTextArea
+        evaluation = new JTextArea();
+        evaluation.setLineWrap(true);
+        evaluation.setWrapStyleWord(true);
+        evaluation.setBounds(70,200, 460, 250);
+        evaluation.setBorder(BorderFactory.createLineBorder(Color.black));
+        evaluationPanel.add(evaluation);
+
+        // Submit Button
+        submitEvaluationBtn = new JButton("Submit");
+        buttonDefault(submitEvaluationBtn, null, new Color(41, 189, 226));
+        submitEvaluationBtn.setBounds(450, 500, 100, 30);
+        evaluationPanel.add(submitEvaluationBtn);
+
+        return evaluationPanel;
     }
 
     public JPanel testDetailPanel(int TID, int TPID) {
