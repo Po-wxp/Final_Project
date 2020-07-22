@@ -25,7 +25,7 @@ public class DatabaseAgent {
             String sqlStr = "CREATE TABLE TESTS(TID INT NOT NULL,TPID INT NOT NULL,MEDIAS TEXT, QUESTIONS TEXT NOT NULL)";
             statement.executeUpdate(sqlStr);
 
-            sqlStr = "CREATE TABLE TEST_DETAIL(TID INT NOT NULL,PUBLISHER VARCHAR(20), DATE VARCHAR(20), ANSWER TEXT, STARS TEXT, PRIMARY KEY(TID))";
+            sqlStr = "CREATE TABLE TEST_DETAIL(TID INT NOT NULL,PUBLISHER VARCHAR(20), DATE VARCHAR(20), ANSWER TEXT, STARS TEXT,USER_INFORMATION TEXT PRIMARY KEY(TID))";
             statement.executeUpdate(sqlStr);
             System.out.println("Create table successfully");
             statement.close();
@@ -61,12 +61,13 @@ public class DatabaseAgent {
             statement.executeUpdate();
 
             if(time == 1){
-                statement = c.prepareStatement("INSERT INTO TEST_DETAIL VALUES (?,?,?,?,?)");
+                statement = c.prepareStatement("INSERT INTO TEST_DETAIL VALUES (?,?,?,?,?,?)");
                 statement.setInt(1, TID);
                 statement.setString(2, name);
                 statement.setString(3, date);
                 statement.setString(4, "");
                 statement.setString(5, "");
+                statement.setString(6, "");
                 statement.executeUpdate();
             }
             System.out.println("Insert data successfully");
@@ -198,12 +199,13 @@ public class DatabaseAgent {
         return output;
     }
 
-    public void uploadAnswer(int TID, String answer, String mark){
+    public void uploadAnswer(int TID, String answer, String mark, String information){
         try {
-            PreparedStatement statement = c.prepareStatement("UPDATE TEST_DETAIL SET ANSWER=?, STARS=? WHERE TID=?");
+            PreparedStatement statement = c.prepareStatement("UPDATE TEST_DETAIL SET ANSWER=?, STARS=?,USER_INFORMATION=? WHERE TID=?");
             statement.setString(1, answer);
             statement.setString(2, mark);
-            statement.setInt(3, TID);
+            statement.setString(3, information);
+            statement.setInt(4, TID);
             statement.executeUpdate();
             System.out.println("update data successfully");
             statement.close();

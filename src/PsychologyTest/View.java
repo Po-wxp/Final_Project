@@ -19,9 +19,9 @@ import java.util.ArrayList;
 public class View extends JFrame {
     private Controller controller;
     protected JButton psy, client, add, showList, back, back2, addFiles, save, pre, next, nextTest,
-            addQuestion, removeQuestion, edit, showNextPage, showPrePage,backToList, finish, submit, removeMedia,
+            addQuestion, removeQuestion, edit, showNextPage, showPrePage, backToList, finish, submit, removeMedia,
             saveModifyBtn, cancelModifyBtn;
-    protected JTextArea question;
+    protected JTextArea question, evaluation;
     protected JFileChooser fc;
     protected JLabel identity, showURL, uploadNum;
     protected JPanel index;
@@ -38,6 +38,8 @@ public class View extends JFrame {
     protected JToggleButton[] stars;
     protected ArrayList<ButtonGroup> pageBtnGroup;
     protected ArrayList<ArrayList<ButtonGroup>> totalBtnGroup;
+    protected JComboBox genderComboBox, ageComboBox;
+    protected JTextField nationality;
 
     public View(Controller controller) {
         initialize();
@@ -237,7 +239,7 @@ public class View extends JFrame {
         TextJp.getHorizontalScrollBar().setUI(new Bar());
         if (!has_border) {
             TextJp.setBorder(null);
-        }else{
+        } else {
             TextJp.setBorder(BorderFactory.createLineBorder(Color.black));
         }
         panel.add(TextJp);
@@ -394,10 +396,11 @@ public class View extends JFrame {
 
     public JPanel doTestPanel(int TID, int TPID) {
         doTestPanel = new JPanel(null);
+        totalBtnGroup = new ArrayList<>();
         // Add components
         detailCommonPart(doTestPanel, TID, TPID);
 
-        JPanel answerPanel = new JPanel(new GridLayout(0,1));
+        JPanel answerPanel = new JPanel(new GridLayout(0, 1));
         answerPanel.setBackground(Color.white);
 
         TextJp = new JScrollPane(answerPanel);
@@ -408,8 +411,8 @@ public class View extends JFrame {
         doTestPanel.add(TextJp);
         setLocation(doTestPanel);
 
-        if(lists.size() == 0){
-            int height = (questionsList.size()+1) * 50;
+        if (lists.size() == 0) {
+            int height = (questionsList.size() + 1) * 50;
             TextJp.setBounds(20, 100, 580, height);
         }
 
@@ -418,21 +421,21 @@ public class View extends JFrame {
             int max_rows = 1;
             JPanel each = new JPanel(new BorderLayout());
             JPanel left = new JPanel(new BorderLayout());
-            JPanel right = new JPanel(new GridLayout(1,5));
+            JPanel right = new JPanel(new GridLayout(1, 5));
 
             each.setBackground(Color.white);
             right.setBackground(Color.white);
 
             // Likert Scale
-            if(i == 0){
+            if (i == 0) {
                 left.setBackground(Color.white);
                 String[] scale = {"Strongly disagree", "Disagree", "Neural", "Agree", "Strongly agree"};
-                for(String s : scale) {
+                for (String s : scale) {
                     JLabel label = new JLabel(s, SwingConstants.CENTER);
                     right.add(label);
                 }
-            }else{ // Questions
-                String s = questionsList.get(i-1);
+            } else { // Questions
+                String s = questionsList.get(i - 1);
                 JTextArea question = new JTextArea(s);
                 question.setEditable(false);
                 question.setLineWrap(true);
@@ -443,7 +446,7 @@ public class View extends JFrame {
                     JPanel buttonPanel = new JPanel();
                     buttonPanel.setBackground(Color.white);
                     JRadioButton radioButton = new JRadioButton();
-                    radioButton.setActionCommand((j+1)+"");
+                    radioButton.setActionCommand((j + 1) + "");
                     radioButton.setBackground(Color.white);
                     group.add(radioButton);
                     buttonPanel.add(radioButton);
@@ -451,8 +454,8 @@ public class View extends JFrame {
                 }
                 pageBtnGroup.add(group);
             }
-            left.setPreferredSize(new Dimension(180,30 + 20*(max_rows)));
-            right.setPreferredSize(new Dimension(385,30 + 20*(max_rows)));
+            left.setPreferredSize(new Dimension(180, 30 + 20 * (max_rows)));
+            right.setPreferredSize(new Dimension(385, 30 + 20 * (max_rows)));
             each.add(left, BorderLayout.WEST);
             each.add(right, BorderLayout.CENTER);
             answerPanel.add(each);
@@ -464,7 +467,7 @@ public class View extends JFrame {
         return doTestPanel;
     }
 
-    public JPanel thanksPanel(){
+    public JPanel thanksPanel() {
         thanksPanel = new JPanel(null);
         thanksPanel.setBackground(Color.white);
 
@@ -474,13 +477,13 @@ public class View extends JFrame {
         // Thank Label
         JLabel thanksLabel = new JLabel("Thanks for filling in the questionnaire！");
         thanksLabel.setFont(new Font("TimesRoman", Font.PLAIN, 27));
-        thanksLabel.setBounds(80,130, 470,50);
+        thanksLabel.setBounds(80, 50, 470, 50);
         thanksPanel.add(thanksLabel);
 
         // Please Label
         JLabel pleaseLabel = new JLabel("Please give a mark for this test 😊");
         pleaseLabel.setFont(f1);
-        pleaseLabel.setBounds(120,220, 400,50);
+        pleaseLabel.setBounds(120, 110, 400, 50);
         thanksPanel.add(pleaseLabel);
 
         // Mark Button
@@ -488,13 +491,67 @@ public class View extends JFrame {
             JToggleButton star = stars[i] = new JToggleButton();
             star.setIcon(inactivateIcon);
             star.setSelectedIcon(activateIcon);
-            star.setBounds(140 + i * 70,300,40,40);
+            star.setBounds(140 + i * 70, 190, 40, 40);
             star.setFocusPainted(false);
             star.setBorderPainted(false);
             star.addActionListener(controller);
             star.setContentAreaFilled(false);
             thanksPanel.add(star);
         }
+
+        // Information labels
+        JLabel[] labels = new JLabel[4];
+        labels[0] = new JLabel("Gender");
+        labels[1] = new JLabel("Age");
+        labels[2] = new JLabel("Nationality");
+        labels[3] = new JLabel("Evaluation");
+
+        for (int i = 0; i < labels.length; i++) {
+            labels[i].setFont(new Font("TimesRoman", Font.PLAIN, 21));
+            labels[i].setBounds(140, 260 + 50*i, 130, 50);
+            thanksPanel.add(labels[i]);
+        }
+
+        // Gender
+        String[] genderOptions = {"--------","Male","Female"};
+        genderComboBox = new JComboBox(genderOptions);
+        genderComboBox.setSelectedIndex(0);
+        genderComboBox.addActionListener(controller);
+        genderComboBox.setBounds(350, 270, 70, 30);
+        thanksPanel.add(genderComboBox);
+
+        // Age
+        String[] ageOptions = new String[23];
+        for (int i = 0; i < ageOptions.length; i++) {
+            if(i == 0){
+                ageOptions[i] = "--------";
+            }else if(i == 1){
+                ageOptions[i] = "Below16";
+            } else if(i == ageOptions.length - 1){
+                ageOptions[i] = "Above35";
+                }else{
+                    ageOptions[i] = 14+i+"";
+            }
+        }
+        ageComboBox = new JComboBox(ageOptions);
+        ageComboBox.setSelectedIndex(0);
+        ageComboBox.addActionListener(controller);
+        ageComboBox.setBounds(350, 320, 70, 30);
+        thanksPanel.add(ageComboBox);
+
+        // Nationality
+        nationality = new JTextField(20);
+        nationality.setBorder(BorderFactory.createLineBorder(Color.black));
+        nationality.setHorizontalAlignment(JTextField.CENTER);
+        nationality.setBounds(350, 375, 70, 30);
+        thanksPanel.add(nationality);
+
+        // Evaluation
+        evaluation = new JTextArea();
+        evaluation.setBorder(BorderFactory.createLineBorder(Color.black));
+        evaluation.setBounds(300, 420, 210, 60);
+        thanksPanel.add(evaluation);
+
 
         // Submit button
         submit = new JButton("Submit");
@@ -572,8 +629,8 @@ public class View extends JFrame {
         // Back Button
         ImageIcon backIcon = new ImageIcon("static/back.png");
         backToList = new JButton(backIcon);
-        buttonDefault(backToList,null,null);
-        backToList.setBounds(500,50,40,40);
+        buttonDefault(backToList, null, null);
+        backToList.setBounds(500, 50, 40, 40);
         panel.add(backToList);
 
         // Next Page Button
@@ -581,14 +638,14 @@ public class View extends JFrame {
         buttonDefault(showNextPage, null, new Color(41, 189, 226));
         showNextPage.setBounds(450, 500, 100, 30);
         panel.add(showNextPage);
-        if(TPID >= maxPageID) {
-            if(controller.is_client){
+        if (TPID >= maxPageID) {
+            if (controller.is_client) {
                 showNextPage.setVisible(false);
                 finish = new JButton("Finish");
                 buttonDefault(finish, null, new Color(41, 189, 226));
                 finish.setBounds(450, 500, 100, 30);
                 panel.add(finish);
-            }else {
+            } else {
                 showNextPage.setEnabled(false);
                 showNextPage.setText("Final Page");
             }
@@ -599,10 +656,11 @@ public class View extends JFrame {
         buttonDefault(showPrePage, null, new Color(41, 189, 226));
         showPrePage.setBounds(310, 500, 100, 30);
         panel.add(showPrePage);
-        if(TPID == 1) {
+        if (TPID == 1) {
             showPrePage.setVisible(false);
         }
     }
+
     // If no media, set text area in the middle of the panel
     public void setLocation(JPanel panel) {
         // Query media files

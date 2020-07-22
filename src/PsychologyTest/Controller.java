@@ -71,6 +71,7 @@ public class Controller implements ActionListener, MouseListener {
                 for (File f : files) {
                     if(!filesList.contains(f)) filesList.add(f);
                 }
+                index = filesList.size() - 1;
                 showPanel();
             }
         }
@@ -217,9 +218,9 @@ public class Controller implements ActionListener, MouseListener {
 
         if (e.getSource() == view.backToList) {
             if (!is_client) {
-                model.changePanel(view.psyPanel, view.testDetailPanel, view.showTestsPanel);
+                model.changePanel(view.psyPanel, view.testDetailPanel, view.showTestsPanel());
             } else {
-                model.changePanel(view.clientPanel, view.doTestPanel, view.showTestsPanel);
+                model.changePanel(view.clientPanel, view.doTestPanel, view.showTestsPanel());
             }
             is_showDetailed = false;
             filesList = new ArrayList();
@@ -266,11 +267,23 @@ public class Controller implements ActionListener, MouseListener {
         }
 
         if (e.getSource() == view.submit) {
-            System.out.println("hahahahah");
             DatabaseAgent database = new DatabaseAgent();
             database.connect();
             String answer = database.getTestDetail(testNum, "ANSWER");
             String star = database.getTestDetail(testNum, "STARS");
+            String information = database.getTestDetail(testNum, "USER_INFORMATION");
+
+            String gender = (String)view.genderComboBox.getSelectedItem();
+            String age = (String)view.ageComboBox.getSelectedItem();
+            String nationality = (String)view.nationality.getText();
+            String evaluation = (String)view.evaluation.getText();
+            String temp = gender + "/" + age + "/" + nationality + "/" + evaluation;
+
+            if(!information.equals("")){
+                information = information + ";" + temp;
+            }else{
+                information = temp;
+            }
 
             if(!answer.equals("")){
                 answer += ";";
@@ -286,7 +299,7 @@ public class Controller implements ActionListener, MouseListener {
                     answer += s;
                 }
             }
-            database.uploadAnswer(testNum, answer, star);
+            database.uploadAnswer(testNum, answer, star, information);
             database.close();
             model.changePanel(view.clientPanel, view.thanksPanel, view.showTestsPanel());
             initialize();
@@ -334,7 +347,12 @@ public class Controller implements ActionListener, MouseListener {
             }
         }
 
-        if(e.getSource() == view.cancelModifyBtn) showDetail(view.psyPanel, view.testDetailPanel,view.testDetailPanel(testNum,pageNum));
+        if(e.getSource() == view.cancelModifyBtn) {
+            filesList = new ArrayList();
+            view.fileList = new ArrayList();
+            index = 0;
+            showDetail(view.psyPanel, view.testDetailPanel,view.testDetailPanel(testNum,pageNum));
+        }
 
         if(e.getSource() == view.saveModifyBtn) {
             model.dialogStyle();
